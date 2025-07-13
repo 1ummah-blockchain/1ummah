@@ -1,91 +1,49 @@
 # blockchain/transaction.py
 
-
-
-import json
-
 import time
-
+import hashlib
 from .crypto_utils import verify_signature
 
-
-
-
-
 class Transaction:
-
-    def __init__(self, sender, recipient, amount, timestamp=None, signature=""):
-
+    def __init__(self, sender, recipient, amount, signature, timestamp=None):
         self.sender = sender
-
         self.recipient = recipient
-
         self.amount = amount
-
-        self.timestamp = timestamp if timestamp else int(time.time())
-
         self.signature = signature
-
-
+        self.timestamp = timestamp or time.time()
 
     def to_dict(self):
-
         return {
-
             "sender": self.sender,
-
             "recipient": self.recipient,
-
             "amount": self.amount,
-
-            "timestamp": self.timestamp,
-
-            "signature": self.signature
-
+            "signature": self.signature,
+            "timestamp": self.timestamp
         }
 
-
-
-    def to_json(self):
-
-        return json.dumps(self.to_dict(), sort_keys=True)
-
-
-
-    def sign(self, wallet):
-
-        self.signature = wallet.sign(self.to_json())
-
-
-
-    def is_valid(self):
-
-        if self.sender == "COINBASE":
-
-            return True  # مكافآت التعدين لا تحتاج تحقق
-
-        if not self.signature:
-
-            return False
-
-        return verify_signature(self.sender, self.to_json(), self.signature)
-
-
+    def compute_hash(self):
+        tx_str = f"{self.sender}{self.recipient}{self.amount}{self.timestamp}"
+        return hashlib.sha256(tx_str.encode()).hexdigest()
 
     @staticmethod
+    def is_valid(transaction, user_db):
+        # تحقق من التوقيع
+        tx_data = f"{transaction.sender}{transaction.recipient}{transaction.amount}{transaction.timestamp}"
+        if not verify_signature(transaction.sender, tx_data, transaction.signature):
+            return False, "Invalid signature"
 
-    def from_dict(data):
+        # تحقق من KYC
+        sender_data = user_db.get(transaction.sender)
+        recipient_data = user_db.get(transaction.recipient)
 
-        return Transaction(
+        if not sender_data or not recipient_data:
+            return False, "Sender or recipient does not exist"
 
-            sender=data["sender"],
+        if not sender_data.get("kyc_passed", False) or not recipient_data.get("kyc_passed", False):
+            return False, "Sender or recipient has not passed KYC"
 
-            recipient=data["recipient"],
+        # تحقق من الرصيد
+        if sender_data.get("balance", 0) < transaction.amount:
+            return False, "Insufficient balance"
 
-            amount=data["amount"],
-
-            timestamp=data.get("timestamp"),
-
-            signature=data.get("signature", "")
-
-        )
+        return True, "Transaction is valid"
