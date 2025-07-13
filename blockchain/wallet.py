@@ -1,3 +1,5 @@
+# blockchain/wallet.py
+
 import base58
 from ecdsa import SigningKey, SECP256k1
 from .crypto_utils import sign_message, verify_signature, serialize_public_key
