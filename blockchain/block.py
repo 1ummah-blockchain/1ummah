@@ -1,61 +1,29 @@
 # blockchain/block.py
 
-import hashlib
-import json
 import time
-from .crypto_utils import serialize_public_key
-
+import hashlib
+from .transaction import Transaction
 
 class Block:
-    def __init__(self, index, previous_hash, timestamp, transactions, creator_address, signature=""):
+    def __init__(self, index, previous_hash, transactions, timestamp=None, nonce=0):
         self.index = index
         self.previous_hash = previous_hash
-        self.timestamp = timestamp
-        self.transactions = transactions  # قائمة المعاملات
-        self.creator_address = creator_address
-        self.signature = signature
-        self.hash = self.calculate_hash()
+        self.transactions = transactions  # قائمة المعاملات (كائنات Transaction)
+        self.timestamp = timestamp or time.time()
+        self.nonce = nonce
+        self.hash = self.compute_hash()
 
-    def calculate_hash(self):
-        block_string = json.dumps({
-            "index": self.index,
-            "previous_hash": self.previous_hash,
-            "timestamp": self.timestamp,
-            "transactions": self.transactions,
-            "creator_address": self.creator_address,
-            "signature": self.signature
-        }, sort_keys=True)
+    def compute_hash(self):
+        tx_data = [tx.to_dict() for tx in self.transactions]
+        block_string = f"{self.index}{self.previous_hash}{tx_data}{self.timestamp}{self.nonce}"
         return hashlib.sha256(block_string.encode()).hexdigest()
 
     def to_dict(self):
         return {
             "index": self.index,
             "previous_hash": self.previous_hash,
+            "transactions": [tx.to_dict() for tx in self.transactions],
             "timestamp": self.timestamp,
-            "transactions": self.transactions,
-            "creator_address": self.creator_address,
-            "signature": self.signature,
+            "nonce": self.nonce,
             "hash": self.hash
         }
-
-    @staticmethod
-    def from_dict(data):
-        return Block(
-            data["index"],
-            data["previous_hash"],
-            data["timestamp"],
-            data["transactions"],
-            data["creator_address"],
-            data["signature"]
-        )
-
-
-def create_genesis_block():
-    return Block(
-        index=0,
-        previous_hash="0",
-        timestamp=int(time.time()),
-        transactions=[],
-        creator_address="GENESIS",
-        signature="GENESIS_SIGNATURE"
-    )
