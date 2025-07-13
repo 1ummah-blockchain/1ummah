@@ -1,87 +1,30 @@
-# blockchain/wallet.py
-
-
-
-from ecdsa import SigningKey, VerifyingKey, SECP256k1
-
-import hashlib
-
-import os
-
-import json
-
-import base64
-
+import base58
+from ecdsa import SigningKey, SECP256k1
 from .crypto_utils import sign_message, verify_signature, serialize_public_key
 
-
-
-
-
 class Wallet:
-
     def __init__(self, private_key=None):
-
         if private_key:
-
-            self.private_key = SigningKey.from_string(
-
-                bytes.fromhex(private_key), curve=SECP256k1)
-
+            self.signing_key = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
         else:
+            self.signing_key = SigningKey.generate(curve=SECP256k1)
 
-            self.private_key = SigningKey.generate(curve=SECP256k1)
+        self.verifying_key = self.signing_key.verifying_key
+        self.address = self.generate_address()
 
-
-
-        self.public_key = self.private_key.get_verifying_key()
-
-
+    def generate_address(self):
+        pub_key_bytes = self.verifying_key.to_string()
+        address_bytes = base58.b58encode(pub_key_bytes)
+        return address_bytes.decode()
 
     def get_private_key(self):
-
-        return self.private_key.to_string().hex()
-
-
+        return self.signing_key.to_string().hex()
 
     def get_public_key(self):
-
-        return serialize_public_key(self.public_key)
-
-
-
-    def get_address(self):
-
-        pub_key_bytes = self.public_key.to_string()
-
-        address = hashlib.sha256(pub_key_bytes).hexdigest()
-
-        return address
-
-
+        return serialize_public_key(self.verifying_key)
 
     def sign(self, message):
+        return sign_message(self.signing_key, message)
 
-        return sign_message(self.private_key, message)
-
-
-
-    def to_dict(self):
-
-        return {
-
-            "private_key": self.get_private_key(),
-
-            "public_key": self.get_public_key(),
-
-            "address": self.get_address()
-
-        }
-
-
-
-    @staticmethod
-
-    def from_dict(data):
-
-        return Wallet(private_key=data["private_key"])
+    def verify(self, message, signature):
+        return verify_signature(self.verifying_key, message, signature)
