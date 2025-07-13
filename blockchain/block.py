@@ -1,103 +1,61 @@
-import time
-
-import json
+# blockchain/block.py
 
 import hashlib
-
-from .crypto_utils import sign_message, verify_signature, serialize_public_key
-
+import json
+import time
+from .crypto_utils import serialize_public_key
 
 
 class Block:
-
-    def __init__(self, index, previous_hash, transactions, validator, timestamp=None, signature=None):
-
+    def __init__(self, index, previous_hash, timestamp, transactions, creator_address, signature=""):
         self.index = index
-
-        self.timestamp = timestamp or time.time()
-
-        self.transactions = transactions  # قائمة المعاملات (قائمة dicts)
-
         self.previous_hash = previous_hash
-
-        self.validator = validator  # العنوان العام للمدقق
-
-        self.signature = signature  # التوقيع الرقمي
-
+        self.timestamp = timestamp
+        self.transactions = transactions  # قائمة المعاملات
+        self.creator_address = creator_address
+        self.signature = signature
         self.hash = self.calculate_hash()
 
-
-
     def calculate_hash(self):
-
         block_string = json.dumps({
-
             "index": self.index,
-
-            "timestamp": self.timestamp,
-
-            "transactions": self.transactions,
-
             "previous_hash": self.previous_hash,
-
-            "validator": self.validator
-
-        }, sort_keys=True).encode()
-
-        return hashlib.sha256(block_string).hexdigest()
-
-
-
-    def sign_block(self, private_key):
-
-        """
-
-        يوقع البلوك باستخدام المفتاح الخاص للمدقق
-
-        """
-
-        self.signature = sign_message(private_key, self.hash.encode()).hex()
-
-
+            "timestamp": self.timestamp,
+            "transactions": self.transactions,
+            "creator_address": self.creator_address,
+            "signature": self.signature
+        }, sort_keys=True)
+        return hashlib.sha256(block_string.encode()).hexdigest()
 
     def to_dict(self):
-
         return {
-
             "index": self.index,
-
-            "timestamp": self.timestamp,
-
-            "transactions": self.transactions,
-
             "previous_hash": self.previous_hash,
-
-            "validator": self.validator,
-
+            "timestamp": self.timestamp,
+            "transactions": self.transactions,
+            "creator_address": self.creator_address,
             "signature": self.signature,
-
             "hash": self.hash
-
         }
 
-
-
     @staticmethod
-
     def from_dict(data):
-
         return Block(
+            data["index"],
+            data["previous_hash"],
+            data["timestamp"],
+            data["transactions"],
+            data["creator_address"],
+            data["signature"]
+        )
 
-            index=data["index"],
 
-            timestamp=data["timestamp"],
-
-            transactions=data["transactions"],
-
-            previous_hash=data["previous_hash"],
-
-            validator=data["validator"],
-
-            signature=data.get("signature")
-
-          )
+def create_genesis_block():
+    return Block(
+        index=0,
+        previous_hash="0",
+        timestamp=int(time.time()),
+        transactions=[],
+        creator_address="GENESIS",
+        signature="GENESIS_SIGNATURE"
+    )
