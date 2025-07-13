@@ -1,100 +1,67 @@
 # 1Ummah Blockchain
 
-**1Ummah** is a fully independent, open-source blockchain project inspired by the concept of unity and collaboration within the Muslim Ummah (nation). This blockchain is designed to reward meaningful actions, support Islamic and humanitarian causes, and create a decentralized, fair, and secure digital ecosystem.
+1Ummah is a decentralized **coin** built on an independent blockchain, designed to reward meaningful Islamic and social actions. It aims to unite the global Muslim community under a secure, ethical, and self-sustained digital financial system.
 
 ---
 
-## 🌟 Project Vision
+## 🔗 Core Features
 
-> “Ummah” means “One Nation.” This project empowers a decentralized system that promotes good deeds, supports community-driven growth, and reflects Islamic values of fairness, transparency, and trust.
-
----
-
-## 🪙 Token Specifications
-
-| Property             | Value                      |
-|----------------------|----------------------------|
-| Name                 | 1Ummah                     |
-| Symbol               | UMH                        |
-| Total Supply         | 1,000,000,000 UMH (Fixed)  |
-| Mining Reward        | 3 UMH per cycle (once every 24h) |
-| Validators           | Users with ≥ 2 UMH         |
-| Referral Bonus       | 2% after 30 mining cycles  |
-| Burn Mechanism       | 2% burned on every transfer |
-| Blockchain           | Fully independent (not Ethereum or BSC) |
-| KYC Required         | Yes (before mining or sending tokens) |
+- 🔒 **Independent Blockchain** — Not built on Ethereum or any external platform
+- 🧠 **Hybrid Mining** — Proof of Stake + Proof of Activity
+- 🧎 **Daily Rewards** — Users mine coins by watching daily Islamic videos and completing spiritual tasks
+- 📱 **PWA Support** — Mobile-first, offline-capable progressive web app
+- 🧾 **Encrypted Wallets** — Secure wallets with 12 recovery words
+- 🔄 **Transfers** — One daily transaction for KYC-verified users (min. 21 UMH)
+- 🤝 **Referral System** — 2% bonus from the 30th mining cycle
+- 🔥 **Coin Burning** — Admin-managed burn logic to control inflation
+- 🧑‍⚖️ **KYC Verification** — Facial recognition and document validation
+- 🛡️ **High Security** — Multi-layer encryption, 51% attack protection
 
 ---
 
-## 🔐 Security Features
+## 🪙 Coin Details
 
-- ECDSA Digital Signatures on every block
-- Full blockchain validation logic
-- User-specific encrypted wallets
-- KYC verification before transaction activity
-- Separation between user roles (admin, miner, validator)
+| Property         | Value              |
+|------------------|--------------------|
+| Coin Name        | 1Ummah             |
+| Symbol           | UMH                |
+| Total Supply     | 1,000,000,000 UMH  |
+| Blockchain Type  | Fully independent  |
+| Mining Reward    | 3 UMH every 24h    |
+| Referral Bonus   | 2% after 30 cycles |
+| KYC Requirement  | Yes                |
 
 ---
 
-## 💻 Folder Structure
+## 📁 Project Structure
 
 ```
-1ummah Blockchain/
+1ummah/
 │
-├── blockchain/
-│   ├── crypto_utils.py     # Digital signatures and key generation
-│   ├── user.py             # User accounts, wallets, KYC
-│   ├── block.py            # Block definition and hashing
-│   └── blockchain.py       # Core blockchain logic: mining, transfer, staking, validation
-│
-├── data/                   # Persistent storage for users and blocks
-│
-├── README.md               # Project overview
-└── requirements.txt        # Python dependencies
+├── blockchain/              # Core blockchain engine (blocks, wallets, crypto)
+├── main.py                  # Entry point to run the chain
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── KYC.md
+├── ROADMAP.md
+└── CODE_OF_CONDUCT.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🧠 Vision
 
-1. **Install Python 3.8+**
-2. **Install dependencies**
-
-```bash
-pip install -r requirements.txt
-```
-
-3. **Import the blockchain engine and start coding**
-
-```python
-from blockchain.blockchain import Blockchain
-
-bc = Blockchain()
-bc.user_manager.register_user("user1")
-bc.user_manager.update_kyc("user1", True, {"doc_type": "Passport", "id": "123456"})
-bc.mine("user1")
-```
+The 1Ummah blockchain promotes Islamic values, digital inclusion, and ethical technology use. Every action rewarded on this platform contributes to knowledge, charity, or unity within the Ummah.
 
 ---
 
-## 🔁 Key Functionalities
+## 🌍 Join Us
 
-- **Proof of Activity**: Users mine UMH tokens by participating in daily tasks.
-- **Proof of Stake**: Validators must hold ≥ 2 UMH to sign blocks.
-- **Referral System**: Referrer earns 2% of reward after 30 mining cycles.
-- **KYC Enforcement**: No mining or transfers without verification.
-- **Token Burn**: 2% of transferred amount is burned forever.
+- 🔨 Open source — contributions welcome
+- 💡 Developers: Fork the project and build Islamic apps on top of it
+- 📧 Contact: 1ummah.blockchain@proton.me
 
 ---
 
-## 📄 License
-
-This project is 100% open source and welcomes contributions from developers around the world. All work must respect the project's values: transparency, security, fairness, and social good.
-
----
-
-## 🤝 Contributing
-
-We welcome developers from all backgrounds to contribute!  
-Open a pull request, suggest a new feature, or help us fix bugs.  
-Together we build something impactful for the Ummah and the world.
+**“The believers are but a single brotherhood…” — Quran 49:10**
