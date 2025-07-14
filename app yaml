@@ -1,0 +1,13 @@
+runtime: python311
+
+entrypoint: gunicorn -b :$PORT main:app
+
+handlers:
+  - url: /assets
+    static_dir: frontend/assets
+
+  - url: /.*
+    script: auto
+
+env_variables:
+  FLASK_ENV: production
