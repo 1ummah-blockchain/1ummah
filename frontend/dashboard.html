@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>1Ummah Dashboard</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>1Ummah Wallet Dashboard</h1>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Welcome, <span id="user-email">Loading...</span></h2>
+      <p>Your blockchain wallet overview</p>
+    </section>
+
+    <section class="features">
+      <div class="feature">
+        <h3>Wallet Address</h3>
+        <p id="wallet-address">Loading...</p>
+      </div>
+      <div class="feature">
+        <h3>Balance</h3>
+        <p id="wallet-balance">Loading...</p>
+      </div>
+      <div class="feature">
+        <h3>KYC Status</h3>
+        <p id="kyc-status">Loading...</p>
+      </div>
+      <div class="feature">
+        <h3>Referral Count</h3>
+        <p id="referral-count">Loading...</p>
+      </div>
+    </section>
+
+    <section class="cta">
+      <a href="mine.html" class="btn">Mine Now</a>
+      <a href="send.html" class="btn">Send Coins</a>
+      <a href="kyc.html" class="btn">Complete KYC</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 1Ummah Blockchain. All rights reserved.</p>
+  </footer>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        const res = await fetch("/api/user/dashboard");
+        const data = await res.json();
+
+        document.getElementById("user-email").textContent = data.email || "N/A";
+        document.getElementById("wallet-address").textContent = data.address || "N/A";
+        document.getElementById("wallet-balance").textContent = data.balance + " UMH";
+        document.getElementById("kyc-status").textContent = data.kyc_status || "Unknown";
+        document.getElementById("referral-count").textContent = data.referrals || "0";
+      } catch (err) {
+        console.error("Failed to load dashboard:", err);
+      }
+    }
+
+    document.getElementById("logout-btn").onclick = () => {
+      fetch("/api/logout", { method: "POST" })
+        .then(() => window.location.href = "login.html");
+    };
+
+    loadDashboard();
+  </script>
+</body>
+</html>

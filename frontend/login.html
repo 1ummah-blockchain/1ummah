@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - 1Ummah Blockchain</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    async function loginUser(event) {
+      event.preventDefault();
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+
+      const res = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: pass })
+      });
+
+      const result = await res.json();
+      alert(result.message);
+      console.log(result);
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>1Ummah Blockchain</h1>
+    </div>
+  </header>
+
+  <main>
+    <div class="register-container">
+      <h2>Login to 1Ummah</h2>
+
+      <form class="register-form" onsubmit="loginUser(event)">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Password</label>
+        <div class="password-toggle">
+          <input type="password" id="password" name="password" required />
+          <button type="button" onclick="togglePassword('password')">Show/Hide</button>
+        </div>
+
+        <button type="submit" class="submit-btn">Login</button>
+      </form>
+
+      <p class="message">Don't have an account? <a href="register.html">Register here</a>.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 1Ummah Blockchain</p>
+  </footer>
+</body>
+</html>

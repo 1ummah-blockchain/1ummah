@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mine UMH - 1Ummah Blockchain</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Mine 1Ummah Coins</h1>
+      <a href="dashboard.html" class="btn">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Start Mining</h2>
+      <p>Earn 3 UMH every 24 hours.</p>
+    </section>
+
+    <section class="cta">
+      <button class="btn" id="mine-btn">Start Mining</button>
+      <p id="mining-status" style="margin-top: 1rem;">⏳ Checking eligibility...</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 1Ummah Blockchain. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const statusEl = document.getElementById("mining-status");
+    const mineBtn = document.getElementById("mine-btn");
+
+    async function checkEligibility() {
+      try {
+        const res = await fetch("/api/mine/status");
+        const data = await res.json();
+        if (data.eligible) {
+          statusEl.textContent = "✅ You are eligible to mine.";
+          mineBtn.disabled = false;
+        } else {
+          statusEl.textContent = `❌ You must wait ${data.remaining_hours.toFixed(1)} more hours.`;
+          mineBtn.disabled = true;
+        }
+      } catch (err) {
+        statusEl.textContent = "⚠️ Error checking eligibility.";
+      }
+    }
+
+    async function startMining() {
+      try {
+        const res = await fetch("/api/mine", { method: "POST" });
+        const data = await res.json();
+        alert(data.message);
+        checkEligibility();
+      } catch (err) {
+        alert("❌ Mining failed.");
+      }
+    }
+
+    mineBtn.addEventListener("click", startMining);
+    checkEligibility();
+  </script>
+</body>
+</html>

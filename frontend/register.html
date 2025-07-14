@@ -1,0 +1,38 @@
+<form onsubmit="return registerUser(event)">
+  <label for="email">Email Address</label>
+  <input type="email" id="email" name="email" required />
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" required />
+  <button type="button" onclick="togglePassword('password')">Show/Hide</button>
+
+  <label for="confirm_password">Confirm Password</label>
+  <input type="password" id="confirm_password" name="confirm_password" required />
+  <button type="button" onclick="togglePassword('confirm_password')">Show/Hide</button>
+
+  <button type="submit" class="btn">Register</button>
+</form>
+
+<script>
+  async function registerUser(event) {
+    event.preventDefault();
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm_password").value;
+
+    if (pass !== confirm) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const res = await fetch("http://localhost:5000/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    const result = await res.json();
+    alert(result.message);
+    console.log(result);
+  }
+</script>

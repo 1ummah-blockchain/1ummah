@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Referral - 1Ummah Blockchain</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Invite & Earn</h1>
+      <a href="dashboard.html" class="btn">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Your Referral Program</h2>
+      <p>Share your referral link. Earn <strong>2%</strong> bonus starting from your friend's <strong>30th mining cycle</strong>. The bonus is added automatically after every cycle.</p>
+    </section>
+
+    <section class="cta">
+      <label for="ref-link">Your Referral Link</label>
+      <input type="text" id="ref-link" readonly />
+      <button class="btn" onclick="copyLink()">Copy Link</button>
+      <p id="copy-status" style="margin-top: 1rem;"></p>
+    </section>
+
+    <section class="features">
+      <div class="feature">
+        <h3>Total Referrals</h3>
+        <p id="referral-count">Loading...</p>
+      </div>
+      <div class="feature">
+        <h3>Total Bonus Earned</h3>
+        <p id="bonus-earned">Loading...</p>
+      </div>
+      <div class="feature">
+        <h3>Next Payout</h3>
+        <p id="next-payout">Loading...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 1Ummah Blockchain. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function copyLink() {
+      const input = document.getElementById("ref-link");
+      input.select();
+      input.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      document.getElementById("copy-status").textContent = "✅ Link copied to clipboard!";
+    }
+
+    async function loadReferralData() {
+      try {
+        const res = await fetch("/api/referral");
+        const data = await res.json();
+
+        document.getElementById("ref-link").value = data.referral_link || "Unavailable";
+        document.getElementById("referral-count").textContent = data.total_referrals ?? "0";
+        document.getElementById("bonus-earned").textContent = `${data.total_bonus ?? 0} UMH`;
+        document.getElementById("next-payout").textContent = data.next_payout ?? "Pending";
+      } catch (err) {
+        document.getElementById("copy-status").textContent = "⚠️ Error loading referral data.";
+      }
+    }
+
+    loadReferralData();
+  </script>
+</body>
+</html>
