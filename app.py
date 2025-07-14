@@ -1,39 +1,37 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+import os
+
+# استيراد الراوترات
 from routes.kyc import kyc_bp
 from routes.mine import mine_bp
 from routes.send import send_bp
 from routes.auth import auth_bp
 from routes.referral import referral_bp
-from models import db
-import os
+from routes.wallet import wallet_bp
 
-app = Flask(__name__)
+# إعداد التطبيق
+app = Flask(__name__, static_folder='frontend', static_url_path='')
 CORS(app)
 
-# إعداد الاتصال بقاعدة البيانات
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///blockchain.db')  # تستخدم SQLite مؤقتًا إذا لم تتوفر قاعدة
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# تهيئة قاعدة البيانات
-db.init_app(app)
-
-# إنشاء الجداول إذا لم تكن موجودة
-with app.app_context():
-    db.create_all()
-
 # تسجيل الـ Blueprints
-app.register_blueprint(auth_bp, url_prefix='/api/auth')
-app.register_blueprint(kyc_bp, url_prefix='/api/kyc')
-app.register_blueprint(mine_bp, url_prefix='/api/mine')
-app.register_blueprint(send_bp, url_prefix='/api/send')
-app.register_blueprint(referral_bp, url_prefix='/api/referral')
+app.register_blueprint(auth_bp, url_prefix='/api')
+app.register_blueprint(kyc_bp, url_prefix='/api')
+app.register_blueprint(mine_bp, url_prefix='/api')
+app.register_blueprint(send_bp, url_prefix='/api')
+app.register_blueprint(referral_bp, url_prefix='/api')
+app.register_blueprint(wallet_bp, url_prefix='/api')
 
-# نقطة اختبار
+# الراوت الرئيسي لواجهة المستخدم
 @app.route('/')
-def index():
-    return {'message': '1Ummah Blockchain API is running.'}, 200
+def serve_index():
+    return send_from_directory(app.static_folder, 'index.html')
 
+# راوت لدعم جميع ملفات الواجهة frontend
+@app.route('/<path:path>')
+def serve_static_file(path):
+    return send_from_directory(app.static_folder, path)
+
+# تشغيل التطبيق
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
