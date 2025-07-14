@@ -60,7 +60,7 @@ The 1Ummah blockchain promotes Islamic values, digital inclusion, and ethical te
 
 - 🔨 Open source — contributions welcome
 - 💡 Developers: Fork the project and build Islamic apps on top of it
-- 📧 Contact: 1ummah.blockchain@proton.me
+- 📧 Contact: 1ummah.blockchain@gmail.com
 
 ---
 
