@@ -1,67 +1,96 @@
 # 1Ummah Blockchain
 
-1Ummah is a decentralized **coin** built on an independent blockchain, designed to reward meaningful Islamic and social actions. It aims to unite the global Muslim community under a secure, ethical, and self-sustained digital financial system.
+A fully independent, decentralized blockchain designed to reward Islamic and social activity through a secure, efficient, and transparent system. Built entirely in Python and not dependent on any third-party blockchain platforms.
 
 ---
 
-## 🔗 Core Features
+## 📦 Total Supply and Distribution
 
-- 🔒 **Independent Blockchain** — Not built on Ethereum or any external platform
-- 🧠 **Hybrid Mining** — Proof of Stake + Proof of Activity
-- 🧎 **Daily Rewards** — Users mine coins by watching daily Islamic videos and completing spiritual tasks
-- 📱 **PWA Support** — Mobile-first, offline-capable progressive web app
-- 🧾 **Encrypted Wallets** — Secure wallets with 12 recovery words
-- 🔄 **Transfers** — One daily transaction for KYC-verified users (min. 21 UMH)
-- 🤝 **Referral System** — 2% bonus from the 30th mining cycle
-- 🔥 **Coin Burning** — Admin-managed burn logic to control inflation
-- 🧑‍⚖️ **KYC Verification** — Facial recognition and document validation
-- 🛡️ **High Security** — Multi-layer encryption, 51% attack protection
+- **Total Supply:** 1,000,000,000 UMH
+- **Community Allocation:** 75% (750,000,000 UMH)
+- **Team & Development Fund:** 20% (200,000,000 UMH)
+- **Reserve & Grants:** 5% (50,000,000 UMH)
 
 ---
 
-## 🪙 Coin Details
+## ⚙️ Mining Mechanism
 
-| Property         | Value              |
-|------------------|--------------------|
-| Coin Name        | 1Ummah             |
-| Symbol           | UMH                |
-| Total Supply     | 1,000,000,000 UMH  |
-| Blockchain Type  | Fully independent  |
-| Mining Reward    | 3 UMH every 24h    |
-| Referral Bonus   | 2% after 30 cycles |
-| KYC Requirement  | Yes                |
+- **Reward per cycle:** 3 UMH
+- **Cycle Duration:** 24 hours
+- **User Eligibility:** 1 mining attempt per user every 24h
+- **Referral Bonus:** 2% from referred user’s mining reward starting from the 30th cycle
+- **Referral Payout:** Automatically accumulated and paid after the 30th cycle and onward
+
+---
+
+## 👤 KYC System
+
+- **Verification required** for mining and transfers
+- **Methods:** Document upload + facial recognition
+- **Non-KYC users:** Cannot send or receive UMH
+
+---
+
+## 💸 Transactions
+
+- **Minimum amount:** 21 UMH
+- **Limit:** One transaction per user per day
+- **KYC restriction:** Sender and receiver must be KYC-verified
+
+---
+
+## 🔏 Wallet System
+
+- **Encrypted wallets** with 12-word mnemonic backup
+- **Multiple wallets per user** supported
+- **Random address generation**
+- Each wallet tracks its own balance and history
+
+---
+
+## 🧠 Blockchain Logic
+
+- **Issuance:** Admin-only
+- **Burning:** Admin-only
+- **Consensus:** Hybrid Proof of Stake (PoS) + Proof of Activity (PoA)
+- **Block validation includes:**
+  - Time limits (1 block per 24h)
+  - KYC enforcement
+  - Referral logic
+  - Digital signature checks
+
+---
+
+## 🛡️ Security Features
+
+- Multi-layer encryption
+- Replay attack protection
+- 51% attack resistance via PoS+PoA
+- Block hash tamper detection
 
 ---
 
 ## 📁 Project Structure
 
-```
-1ummah/
-│
-├── blockchain/              # Core blockchain engine (blocks, wallets, crypto)
-├── main.py                  # Entry point to run the chain
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── KYC.md
-├── ROADMAP.md
-└── CODE_OF_CONDUCT.md
-```
+- `blockchain/` – All blockchain logic and modules
+- `frontend/` – Web UI (HTML/CSS/JS)
+- `main.py` – Entry point for testing and running blockchain
+- `requirements.txt` – Python dependencies
+- `README.md` – Project overview
 
 ---
 
-## 🧠 Vision
+## 💡 Developer Notes
 
-The 1Ummah blockchain promotes Islamic values, digital inclusion, and ethical technology use. Every action rewarded on this platform contributes to knowledge, charity, or unity within the Ummah.
-
----
-
-## 🌍 Join Us
-
-- 🔨 Open source — contributions welcome
-- 💡 Developers: Fork the project and build Islamic apps on top of it
-- 📧 Contact: 1ummah.blockchain@gmail.com
+- Built 100% in Python
+- Modular files for easy audit and extension
+- Zero reliance on Ethereum or other chains
+- Intended for educational, community, and charitable projects
 
 ---
 
-**“The believers are but a single brotherhood…” — Quran 49:10**
+## 🚀 Open Source — Contributions Welcome
+
+**Developers:** Fork this project and build Islamic apps on top of it.
+
+**Contact:** 1ummah.blockchain@gmail.com
