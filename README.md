@@ -1,96 +1,120 @@
-# 1Ummah Blockchain
+# 🌐 1Ummah Blockchain
 
-A fully independent, decentralized blockchain designed to reward Islamic and social activity through a secure, efficient, and transparent system. Built entirely in Python and not dependent on any third-party blockchain platforms.
-
----
-
-## 📦 Total Supply and Distribution
-
-- **Total Supply:** 1,000,000,000 UMH
-- **Community Allocation:** 75% (750,000,000 UMH)
-- **Team & Development Fund:** 20% (200,000,000 UMH)
-- **Reserve & Grants:** 5% (50,000,000 UMH)
+**1Ummah** is a fully independent, open-source blockchain protocol built for rewarding meaningful Islamic and social activity. It operates without any dependency on Ethereum or other public blockchains and includes its own internal mining, wallet, KYC, and transaction logic.
 
 ---
 
-## ⚙️ Mining Mechanism
+## 📦 Total Supply
 
-- **Reward per cycle:** 3 UMH
-- **Cycle Duration:** 24 hours
-- **User Eligibility:** 1 mining attempt per user every 24h
-- **Referral Bonus:** 2% from referred user’s mining reward starting from the 30th cycle
-- **Referral Payout:** Automatically accumulated and paid after the 30th cycle and onward
+- **Max Supply:** 1,000,000,000 UMH (1 Billion)
+- **Distribution:**
+  - 75% Community (750,000,000 UMH)
+  - 20% Team & Development (200,000,000 UMH)
+  - 5% Grants & Reserve (50,000,000 UMH)
 
 ---
 
-## 👤 KYC System
+## ⚙️ Mining Logic
 
-- **Verification required** for mining and transfers
-- **Methods:** Document upload + facial recognition
-- **Non-KYC users:** Cannot send or receive UMH
+- **Reward per Cycle:** 3 UMH
+- **Cycle Duration:** 24 Hours per user
+- **Referral Bonus:** 2% starting after the 30th mining cycle of each referred user
+- **Referral Payout:** Automatically sent when eligible
+
+---
+
+## 🔒 Wallet System
+
+- Encrypted wallet with 12-word mnemonic phrase
+- Multiple wallets per user allowed
+- Random wallet address generation
+- Each wallet stores its own history
+
+---
+
+## 🛂 KYC Verification
+
+- Required for mining, sending, and receiving coins
+- Methods: Document upload + Facial recognition
+- Transactions and wallet access locked until KYC is approved
 
 ---
 
 ## 💸 Transactions
 
-- **Minimum amount:** 21 UMH
-- **Limit:** One transaction per user per day
-- **KYC restriction:** Sender and receiver must be KYC-verified
+- **Minimum Amount:** 21 UMH
+- **Limit:** 1 transaction per day per user
+- **Eligibility:** Sender and receiver must be KYC-approved
+- **Validation:** All transactions pass through internal block validation
 
 ---
 
-## 🔏 Wallet System
+## 🧠 Blockchain Features
 
-- **Encrypted wallets** with 12-word mnemonic backup
-- **Multiple wallets per user** supported
-- **Random address generation**
-- Each wallet tracks its own balance and history
-
----
-
-## 🧠 Blockchain Logic
-
-- **Issuance:** Admin-only
-- **Burning:** Admin-only
-- **Consensus:** Hybrid Proof of Stake (PoS) + Proof of Activity (PoA)
-- **Block validation includes:**
-  - Time limits (1 block per 24h)
+- Hybrid consensus mechanism: PoS (Proof of Stake) + PoA (Proof of Activity)
+- Admin-only coin issuance and burn rights
+- Internal validation for:
+  - Time-based mining lock
   - KYC enforcement
-  - Referral logic
-  - Digital signature checks
+  - Signature & referral verification
 
 ---
 
-## 🛡️ Security Features
+## 🔐 Security
 
 - Multi-layer encryption
+- 51% attack mitigation
 - Replay attack protection
-- 51% attack resistance via PoS+PoA
-- Block hash tamper detection
+- Tamper detection via block hash consistency
 
 ---
 
-## 📁 Project Structure
+## 🖥️ Tech Stack
 
-- `blockchain/` – All blockchain logic and modules
-- `frontend/` – Web UI (HTML/CSS/JS)
-- `main.py` – Entry point for testing and running blockchain
-- `requirements.txt` – Python dependencies
-- `README.md` – Project overview
-
----
-
-## 💡 Developer Notes
-
-- Built 100% in Python
-- Modular files for easy audit and extension
-- Zero reliance on Ethereum or other chains
-- Intended for educational, community, and charitable projects
+- **Backend:** Python (modular structure), Flask
+- **Frontend:** HTML5, CSS3, Vanilla JS
+- **Database:** Local JSON-based or SQLite (replaceable)
+- **Hosting:** Google Cloud (Cloud Run / App Engine)
 
 ---
 
-## 🚀 Open Source — Contributions Welcome
+## 🚀 Getting Started
 
-**Developers:** Fork this project and build Islamic apps on top of it.
+### 1. Clone the repo:
 
-**Contact:** 1ummah.blockchain@gmail.com
+```bash
+git clone https://github.com/YOUR_USERNAME/1ummah-blockchain.git
+cd 1ummah-blockchain
+```
+
+### 2. Frontend
+
+```bash
+cd frontend
+```
+
+Use any live server or deploy to Google Cloud Storage as a static site.
+
+### 3. Backend (Blockchain & API)
+
+```bash
+cd blockchain
+python3 app.py
+```
+
+---
+
+## 📨 Contact
+
+📧 Email: 1ummah.blockchain@gmail.com  
+🤝 Contributions Welcome!
+
+---
+
+## 🔓 License
+
+MIT License – Free to use, modify, and build upon.
+
+---
+
+> Designed for purpose. Built for the Ummah.
