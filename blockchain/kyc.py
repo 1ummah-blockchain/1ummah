@@ -4,21 +4,26 @@ class KYCRegistry:
     def __init__(self):
         self.verified_users = set()
 
-    def verify_user(self, address):
-        self.verified_users.add(address)
+    def verify_user(self, address_or_email):
+        self.verified_users.add(address_or_email)
 
-    def is_verified(self, address):
-        return address in self.verified_users
+    def is_verified(self, address_or_email):
+        return address_or_email in self.verified_users
 
 
-# دالة وهمية لمعالجة مستند KYC
-def process_kyc_document(document):
-    # في النظام الفعلي: تحليل المستندات والتحقق منها
+# إنشاء نسخة واحدة فقط من السجل
+kyc_registry = KYCRegistry()
+
+
+def process_kyc_document(email, document_path, selfie_path):
+    """
+    المعالجة الوهمية لوثائق KYC.
+    في هذا الإصدار، نعتبر أي عملية تحقق ناجحة دائمًا.
+    """
+    # يمكن إضافة منطق تحقق مستقبلاً باستخدام الذكاء الاصطناعي أو فحص يدوي
+    kyc_registry.verify_user(email)
     return True
 
 
-# دالة للتحقق مما إذا كان المستخدم موثّق
-def is_user_verified(address, kyc_registry=None):
-    if kyc_registry:
-        return kyc_registry.is_verified(address)
-    return False
+def is_user_verified(email):
+    return kyc_registry.is_verified(email)
