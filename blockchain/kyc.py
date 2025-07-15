@@ -11,16 +11,14 @@ class KYCRegistry:
         return address_or_email in self.verified_users
 
 
-# إنشاء نسخة واحدة فقط من السجل
+# سجل واحد مشترك
 kyc_registry = KYCRegistry()
 
 
 def process_kyc_document(email, document_path, selfie_path):
     """
-    المعالجة الوهمية لوثائق KYC.
-    في هذا الإصدار، نعتبر أي عملية تحقق ناجحة دائمًا.
+    محاكاة عملية تحقق KYC ناجحة.
     """
-    # يمكن إضافة منطق تحقق مستقبلاً باستخدام الذكاء الاصطناعي أو فحص يدوي
     kyc_registry.verify_user(email)
     return True
 
