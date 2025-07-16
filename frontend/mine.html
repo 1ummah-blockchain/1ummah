@@ -1,68 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mine UMH - 1Ummah Blockchain</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta charset="UTF-8">
+  <title>إثبات النشاط</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+      text-align: center;
+    }
+    .video-container {
+      max-width: 100%;
+      margin: auto;
+    }
+    iframe {
+      width: 100%;
+      max-width: 480px;
+      height: 270px;
+      border: none;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .status {
+      margin-top: 15px;
+      font-size: 16px;
+      color: green;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Mine 1Ummah Coins</h1>
-      <a href="dashboard.html" class="btn">Back to Dashboard</a>
-    </div>
-  </header>
 
-  <main>
-    <section class="intro">
-      <h2>Start Mining</h2>
-      <p>Earn 3 UMH every 24 hours.</p>
-    </section>
+  <h2>من فضلك شاهد هذا الفيديو واشترك في القناة</h2>
 
-    <section class="cta">
-      <button class="btn" id="mine-btn">Start Mining</button>
-      <p id="mining-status" style="margin-top: 1rem;">⏳ Checking eligibility...</p>
-    </section>
-  </main>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" allowfullscreen></iframe>
+  </div>
 
-  <footer>
-    <p>&copy; 2025 1Ummah Blockchain. All rights reserved.</p>
-  </footer>
+  <button onclick="confirmActivity()">✅ لقد اشتركت</button>
+
+  <div class="status" id="status"></div>
 
   <script>
-    const statusEl = document.getElementById("mining-status");
-    const mineBtn = document.getElementById("mine-btn");
-
-    async function checkEligibility() {
-      try {
-        const res = await fetch("/api/mine/status");
-        const data = await res.json();
-        if (data.eligible) {
-          statusEl.textContent = "✅ You are eligible to mine.";
-          mineBtn.disabled = false;
-        } else {
-          statusEl.textContent = `❌ You must wait ${data.remaining_hours.toFixed(1)} more hours.`;
-          mineBtn.disabled = true;
-        }
-      } catch (err) {
-        statusEl.textContent = "⚠️ Error checking eligibility.";
-      }
+    function confirmActivity() {
+      fetch("/api/activity/proof", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: localStorage.getItem("user_email") || "" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status").textContent = data.message;
+      });
     }
-
-    async function startMining() {
-      try {
-        const res = await fetch("/api/mine", { method: "POST" });
-        const data = await res.json();
-        alert(data.message);
-        checkEligibility();
-      } catch (err) {
-        alert("❌ Mining failed.");
-      }
-    }
-
-    mineBtn.addEventListener("click", startMining);
-    checkEligibility();
   </script>
+
 </body>
 </html>
