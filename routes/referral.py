@@ -1,20 +1,11 @@
 # routes/referral.py
 
 from flask import Blueprint, jsonify, request
-import os
-import json
 from datetime import datetime, timedelta
+from firestore_db import db
 from blockchain.config import REFERRAL_BONUS_PERCENT
 
 referral_bp = Blueprint("referral", __name__)
-
-USERS_FILE = os.path.join("blockchain", "users.json")
-
-def load_users():
-    if not os.path.exists(USERS_FILE):
-        return {}
-    with open(USERS_FILE, "r") as f:
-        return json.load(f)
 
 @referral_bp.route("/api/referral", methods=["GET"])
 def get_referral_info():
@@ -23,23 +14,29 @@ def get_referral_info():
     if not email:
         return jsonify({"message": "Email is required"}), 400
 
-    users = load_users()
-    user = users.get(email)
+    user_ref = db.collection("users").document(email)
+    user_doc = user_ref.get()
 
-    if not user:
+    if not user_doc.exists:
         return jsonify({"message": "User not found"}), 404
 
-    # توليد رابط الإحالة
-    referral_link = f"https://your-domain.com/register.html?ref={email}"
+    # الحصول على جميع المستخدمين لحساب عدد الإحالات
+    users_ref = db.collection("users").stream()
+    total_referrals = 0
 
-    # بيانات افتراضية — يمكنك لاحقًا ربطها من قاعدة بيانات المعاملات
-    total_referrals = sum(1 for u in users.values() if u.get("referral") == email)
-    total_bonus = total_referrals * 3 * REFERRAL_BONUS_PERCENT  # من الدورة 30
-    next_payout = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    for doc in users_ref:
+        user_data = doc.to_dict()
+        if user_data.get("referral") == email:
+            total_referrals += 1
+
+    total_bonus = int(total_referrals * 3 * REFERRAL_BONUS_PERCENT)  # من الدورة 30
+
+    # رابط الإحالة النهائي
+    referral_link = f"https://www.1ummah.me/register.html?ref={email}"
 
     return jsonify({
         "referral_link": referral_link,
         "total_referrals": total_referrals,
-        "total_bonus": int(total_bonus),
-        "next_payout": next_payout
+        "total_bonus": total_bonus,
+        "next_payout": (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")
     })
