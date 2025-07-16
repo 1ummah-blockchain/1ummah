@@ -1,9 +1,7 @@
-# routes/kyc.py
-
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
-from blockchain.kyc import process_kyc_document, is_user_verified
+from firestore_db import db
 
 kyc_bp = Blueprint("kyc_bp", __name__)
 
@@ -14,6 +12,30 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# ⬅️ استبدال process_kyc_document: تحديث KYC للمستخدم في Firestore
+def process_kyc_document(email, doc_path, selfie_path):
+    user_ref = db.collection("users").document(email)
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        return False
+
+    # يمكن لاحقًا إضافة تحليل الصور بالذكاء الاصطناعي هنا
+    user_ref.update({
+        "kyc": True,
+        "kyc_doc_path": doc_path,
+        "kyc_selfie_path": selfie_path
+    })
+    return True
+
+# ⬅️ استبدال is_user_verified: جلب حالة kyc من Firestore
+def is_user_verified(email):
+    user_ref = db.collection("users").document(email)
+    user_doc = user_ref.get()
+    if not user_doc.exists:
+        return False
+    return user_doc.to_dict().get("kyc", False)
 
 @kyc_bp.route('/kyc/upload', methods=['POST'])
 def upload_kyc():
