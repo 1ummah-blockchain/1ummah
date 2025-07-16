@@ -32,6 +32,7 @@ def serve_index():
 def serve_static_file(path):
     return send_from_directory(app.static_folder, path)
 
-# تشغيل التطبيق
+# تشغيل التطبيق على المنفذ الصحيح لـ Cloud Run
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
