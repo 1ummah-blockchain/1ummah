@@ -3,41 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>1Ummah Blockchain</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <title>Welcome to 1Ummah</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .logo {
+      max-width: 120px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 18px;
+      max-width: 500px;
+      margin-bottom: 30px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      background-color: #00c9a7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #00b39f;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 28px; }
+      p { font-size: 16px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Welcome to 1Ummah Blockchain</h1>
-      <p>Independent Islamic Digital Economy</p>
-    </header>
 
-    <main>
-      <div class="action-buttons">
-        <a href="login.html" class="btn">Login</a>
-        <a href="register.html" class="btn">Register</a>
-      </div>
+  <!-- Logo -->
+  <img src="/assets/logo.png" alt="1Ummah Logo" class="logo" />
 
-      <section class="info-box">
-        <h2>About 1Ummah</h2>
-        <p>1Ummah is an independent blockchain rewarding meaningful Islamic activity. Mine coins by doing good, send & receive UMH securely, and become part of a unified digital ummah.</p>
-      </section>
+  <!-- Welcome Message -->
+  <h1>Welcome to 1Ummah Blockchain</h1>
+  <p>The independent blockchain project for community-driven digital mining and decentralized finance.</p>
 
-      <section class="supply-box">
-        <h2>UMH Supply</h2>
-        <ul>
-          <li><strong>Total Supply:</strong> 500,000,000 UMH</li>
-          <li><strong>Community:</strong> 375,000,000 UMH</li>
-          <li><strong>Team & Dev Fund:</strong> 100,000,000 UMH</li>
-          <li><strong>Reserve:</strong> 25,000,000 UMH</li>
-        </ul>
-      </section>
-    </main>
-
-    <footer>
-      <p>Open source ¡ª contributions welcome | Contact: 1ummah.blockchain@gmail.com</p>
-    </footer>
+  <!-- Buttons -->
+  <div class="btn-group">
+    <a href="/register.html" class="btn">Create Account</a>
+    <a href="/login.html" class="btn">Login</a>
   </div>
+
+  <!-- Footer -->
+  <footer>&copy; 2025 1Ummah Blockchain. All rights reserved.</footer>
+
 </body>
 </html>

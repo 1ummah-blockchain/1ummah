@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet - 1Ummah</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #232526, #414345);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    .logo {
+      height: 40px;
+    }
+    .username {
+      font-size: 18px;
+    }
+    main {
+      flex: 1;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .wallet-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      display: inline-block;
+      width: 100%;
+      max-width: 500px;
+    }
+    .info {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    .btn {
+      padding: 12px 20px;
+      background-color: #00c9a7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background-color: #00b39f;
+    }
+    .status {
+      margin-top: 15px;
+      font-size: 15px;
+    }
+    footer {
+      background-color: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="/assets/logo.png" alt="1Ummah Logo" class="logo" />
+    <div class="username" id="username-display">Welcome</div>
+  </header>
+
+  <main>
+    <h1>Your Wallet</h1>
+    <div class="wallet-box">
+      <div class="info"><strong>Username:</strong> <span id="username"></span></div>
+      <div class="info"><strong>Email:</strong> <span id="email"></span></div>
+      <div class="info"><strong>Wallet Address:</strong> <span id="wallet"></span></div>
+      <button class="btn" onclick="copyWallet()">📋 Copy Address</button>
+    </div>
+
+    <h2>Send UMH</h2>
+    <div class="wallet-box">
+      <input type="text" id="recipient" placeholder="Recipient username or wallet address" />
+      <input type="number" id="amount" placeholder="Amount (min 21 UMH)" />
+      <button class="btn" onclick="sendCoins()">Send</button>
+      <div class="status" id="send-status"></div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 1Ummah Blockchain. All rights reserved.
+  </footer>
+
+  <script>
+    const email = localStorage.getItem("user_email") || "unknown@email.com";
+    const wallet = localStorage.getItem("user_wallet") || "N/A";
+    const username = email.split("@")[0];
+
+    document.getElementById("email").textContent = email;
+    document.getElementById("wallet").textContent = wallet;
+    document.getElementById("username").textContent = username;
+    document.getElementById("username-display").textContent = "Welcome, " + username;
+
+    function copyWallet() {
+      navigator.clipboard.writeText(wallet);
+      alert("Wallet address copied!");
+    }
+
+    async function sendCoins() {
+      const recipient = document.getElementById("recipient").value.trim();
+      const amount = parseFloat(document.getElementById("amount").value);
+      const statusBox = document.getElementById("send-status");
+
+      if (!recipient || !amount || amount < 21) {
+        statusBox.textContent = "⚠️ Please enter valid recipient and minimum 21 UMH.";
+        return;
+      }
+
+      const res = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, sender: wallet, recipient, amount })
+      });
+
+      const result = await res.json();
+      statusBox.textContent = result.message || "⚠️ Sending failed.";
+    }
+  </script>
+
+</body>
+</html>

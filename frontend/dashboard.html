@@ -3,75 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>1Ummah Dashboard</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <title>Dashboard - 1Ummah</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #232526, #414345);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    .logo {
+      height: 40px;
+    }
+    .username {
+      font-size: 18px;
+    }
+    main {
+      flex: 1;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .action-btn, .nav-btn {
+      display: inline-block;
+      padding: 12px 20px;
+      margin: 10px;
+      background-color: #00c9a7;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+    }
+    .action-btn:hover, .nav-btn:hover {
+      background-color: #00b39f;
+    }
+    footer {
+      background-color: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #ccc;
+    }
+  </style>
 </head>
 <body>
+
   <header>
-    <div class="container">
-      <h1>1Ummah Wallet Dashboard</h1>
-      <button id="logout-btn">Logout</button>
-    </div>
+    <img src="/assets/logo.png" alt="1Ummah Logo" class="logo" />
+    <div class="username" id="username-display">Welcome</div>
   </header>
 
   <main>
-    <section class="intro">
-      <h2>Welcome, <span id="user-email">Loading...</span></h2>
-      <p>Your blockchain wallet overview</p>
-    </section>
+    <h1>Dashboard</h1>
 
-    <section class="features">
-      <div class="feature">
-        <h3>Wallet Address</h3>
-        <p id="wallet-address">Loading...</p>
-      </div>
-      <div class="feature">
-        <h3>Balance</h3>
-        <p id="wallet-balance">Loading...</p>
-      </div>
-      <div class="feature">
-        <h3>KYC Status</h3>
-        <p id="kyc-status">Loading...</p>
-      </div>
-      <div class="feature">
-        <h3>Referral Count</h3>
-        <p id="referral-count">Loading...</p>
-      </div>
-    </section>
+    <a href="/proof.html" class="action-btn">⛏️ Start Mining (Confirm Activity)</a>
 
-    <section class="cta">
-      <a href="mine.html" class="btn">Mine Now</a>
-      <a href="send.html" class="btn">Send Coins</a>
-      <a href="kyc.html" class="btn">Complete KYC</a>
-    </section>
+    <div>
+      <a href="/mine.html" class="nav-btn">Mine</a>
+      <a href="/kyc.html" class="nav-btn">KYC</a>
+      <a href="/referral.html" class="nav-btn">Referral</a>
+      <a href="/wallet.html" class="nav-btn">Wallet</a>
+    </div>
   </main>
 
   <footer>
-    <p>&copy; 2025 1Ummah Blockchain. All rights reserved.</p>
+    &copy; 2025 1Ummah Blockchain. All rights reserved.
   </footer>
 
   <script>
-    async function loadDashboard() {
-      try {
-        const res = await fetch("/api/user/dashboard");
-        const data = await res.json();
-
-        document.getElementById("user-email").textContent = data.email || "N/A";
-        document.getElementById("wallet-address").textContent = data.address || "N/A";
-        document.getElementById("wallet-balance").textContent = data.balance + " UMH";
-        document.getElementById("kyc-status").textContent = data.kyc_status || "Unknown";
-        document.getElementById("referral-count").textContent = data.referrals || "0";
-      } catch (err) {
-        console.error("Failed to load dashboard:", err);
-      }
-    }
-
-    document.getElementById("logout-btn").onclick = () => {
-      fetch("/api/logout", { method: "POST" })
-        .then(() => window.location.href = "login.html");
-    };
-
-    loadDashboard();
+    document.addEventListener("DOMContentLoaded", () => {
+      const email = localStorage.getItem("user_email") || "User";
+      const username = email.split("@")[0];
+      document.getElementById("username-display").textContent = "Welcome, " + username;
+    });
   </script>
+
 </body>
 </html>

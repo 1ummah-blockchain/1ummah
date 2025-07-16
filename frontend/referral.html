@@ -3,74 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Referral - 1Ummah Blockchain</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <title>Referral - 1Ummah</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #16222a, #3a6073);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    .container {
+      background-color: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    .referral-link {
+      background-color: #fff;
+      color: #000;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+    .info {
+      margin-top: 15px;
+      font-size: 16px;
+    }
+    .btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #00c9a7;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #00b39f;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Invite & Earn</h1>
-      <a href="dashboard.html" class="btn">Back to Dashboard</a>
-    </div>
-  </header>
 
-  <main>
-    <section class="intro">
-      <h2>Your Referral Program</h2>
-      <p>Share your referral link. Earn <strong>2%</strong> bonus starting from your friend's <strong>30th mining cycle</strong>. The bonus is added automatically after every cycle.</p>
-    </section>
-
-    <section class="cta">
-      <label for="ref-link">Your Referral Link</label>
-      <input type="text" id="ref-link" readonly />
+  <div class="container">
+    <h2>Referral Program</h2>
+    <div id="referralInfo">
+      <div class="referral-link" id="referralLink">Loading...</div>
       <button class="btn" onclick="copyLink()">Copy Link</button>
-      <p id="copy-status" style="margin-top: 1rem;"></p>
-    </section>
-
-    <section class="features">
-      <div class="feature">
-        <h3>Total Referrals</h3>
-        <p id="referral-count">Loading...</p>
-      </div>
-      <div class="feature">
-        <h3>Total Bonus Earned</h3>
-        <p id="bonus-earned">Loading...</p>
-      </div>
-      <div class="feature">
-        <h3>Next Payout</h3>
-        <p id="next-payout">Loading...</p>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 1Ummah Blockchain. All rights reserved.</p>
-  </footer>
+      <div class="info" id="details"></div>
+    </div>
+  </div>
 
   <script>
-    function copyLink() {
-      const input = document.getElementById("ref-link");
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      document.getElementById("copy-status").textContent = "✅ Link copied to clipboard!";
-    }
+    const email = localStorage.getItem("user_email");
 
     async function loadReferralData() {
-      try {
-        const res = await fetch("/api/referral");
-        const data = await res.json();
-
-        document.getElementById("ref-link").value = data.referral_link || "Unavailable";
-        document.getElementById("referral-count").textContent = data.total_referrals ?? "0";
-        document.getElementById("bonus-earned").textContent = `${data.total_bonus ?? 0} UMH`;
-        document.getElementById("next-payout").textContent = data.next_payout ?? "Pending";
-      } catch (err) {
-        document.getElementById("copy-status").textContent = "⚠️ Error loading referral data.";
+      if (!email) {
+        document.getElementById("referralInfo").innerHTML = "<p>Please login first.</p>";
+        return;
       }
+
+      const res = await fetch(`/api/referral?email=${email}`);
+      const data = await res.json();
+
+      document.getElementById("referralLink").textContent = data.referral_link;
+      document.getElementById("details").innerHTML = `
+        <p>👥 Total Referrals: <strong>${data.total_referrals}</strong></p>
+        <p>🎁 Referral Bonus: <strong>${data.total_bonus} UMH</strong></p>
+        <p>📅 Next Payout: <strong>${data.next_payout}</strong></p>
+      `;
+    }
+
+    function copyLink() {
+      const text = document.getElementById("referralLink").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Link copied to clipboard");
+      });
     }
 
     loadReferralData();
   </script>
+
 </body>
 </html>

@@ -3,43 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KYC Verification - 1Ummah Blockchain</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <title>KYC Verification - 1Ummah</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .container {
+      background-color: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    input, select {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #00c9a7;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #00b39f;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>KYC Verification</h1>
-    </div>
-  </header>
 
-  <main>
-    <div class="container">
-      <section class="intro">
-        <p>To activate your account and start mining or transferring coins, please complete your KYC verification.</p>
-      </section>
+  <h1>KYC Verification</h1>
+  <div class="container">
+    <p id="kycStatus">Checking your KYC status...</p>
 
-      <form id="kyc-form" action="/kyc/upload" method="POST" enctype="multipart/form-data">
-        <label for="user_id">Your Unique User ID:</label>
-        <input type="text" id="user_id" name="user_id" required />
+    <input type="text" id="fullname" placeholder="Full Name" required />
+    <input type="file" id="kycDocument" accept="image/*,application/pdf" required />
+    <button class="btn" onclick="submitKYC()">Submit for Review</button>
 
-        <label for="id_document">Upload ID Document:</label>
-        <input type="file" id="id_document" name="id_document" accept=".jpg,.jpeg,.png,.pdf" required />
+    <div id="status"></div>
+  </div>
 
-        <label for="face_photo">Upload Face Photo:</label>
-        <input type="file" id="face_photo" name="face_photo" accept=".jpg,.jpeg,.png" required />
+  <script>
+    const email = localStorage.getItem("user_email");
+    const kycStatus = document.getElementById("kycStatus");
 
-        <button type="submit" class="btn">Submit Verification</button>
-      </form>
+    async function checkStatus() {
+      if (!email) {
+        kycStatus.textContent = "❌ Please login first.";
+        return;
+      }
 
-      <section class="cta">
-        <p id="status">Your KYC status will appear after submission.</p>
-      </section>
-    </div>
-  </main>
+      const res = await fetch(`/api/kyc/status?email=${email}`);
+      const data = await res.json();
+      kycStatus.textContent = `Your current KYC status: ${data.status.toUpperCase()}`;
+    }
 
-  <footer>
-    <p>© 1Ummah Blockchain</p>
-  </footer>
+    async function submitKYC() {
+      const fullname = document.getElementById("fullname").value.trim();
+      const file = document.getElementById("kycDocument").files[0];
+      const statusBox = document.getElementById("status");
+
+      if (!fullname || !file) {
+        statusBox.textContent = "⚠️ All fields are required.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("fullname", fullname);
+      formData.append("document", file);
+
+      const res = await fetch("/api/kyc/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await res.json();
+      statusBox.textContent = result.message;
+      if (res.ok) {
+        kycStatus.textContent = "Your current KYC status: PENDING";
+      }
+    }
+
+    checkStatus();
+  </script>
+
 </body>
 </html>

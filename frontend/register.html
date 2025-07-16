@@ -1,38 +1,163 @@
-<form onsubmit="return registerUser(event)">
-  <label for="email">Email Address</label>
-  <input type="email" id="email" name="email" required />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - 1Ummah</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #16222a, #3a6073);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+    .register-container {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+    .register-container h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 26px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: #fff;
+      color: #000;
+      font-size: 16px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background-color: #00c9a7;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #00b39f;
+    }
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 15px;
+    }
+    .toggle-btn {
+      background: none;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      float: right;
+      margin-top: -35px;
+      margin-right: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+      color: #ccc;
+    }
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+    .logo img {
+      height: 50px;
+    }
+  </style>
+</head>
+<body>
 
-  <label for="password">Password</label>
-  <input type="password" id="password" name="password" required />
-  <button type="button" onclick="togglePassword('password')">Show/Hide</button>
+  <!-- Logo -->
+  <div class="logo">
+    <img src="/assets/logo.png" alt="1Ummah Logo" />
+  </div>
 
-  <label for="confirm_password">Confirm Password</label>
-  <input type="password" id="confirm_password" name="confirm_password" required />
-  <button type="button" onclick="togglePassword('confirm_password')">Show/Hide</button>
+  <!-- Form Container -->
+  <div class="register-container">
+    <h2>Create a New Account</h2>
+    <form onsubmit="return registerUser(event)">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="email" id="email" placeholder="Email address" required />
+      <div style="position: relative;">
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="button" class="toggle-btn" onclick="togglePassword('password')">👁</button>
+      </div>
+      <div style="position: relative;">
+        <input type="password" id="confirm_password" placeholder="Confirm password" required />
+        <button type="button" class="toggle-btn" onclick="togglePassword('confirm_password')">👁</button>
+      </div>
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <div class="message" id="message"></div>
+  </div>
 
-  <button type="submit" class="btn">Register</button>
-</form>
+  <!-- Footer -->
+  <footer>&copy; 2025 1Ummah Blockchain. All rights reserved.</footer>
 
-<script>
-  async function registerUser(event) {
-    event.preventDefault();
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-    const confirm = document.getElementById("confirm_password").value;
-
-    if (pass !== confirm) {
-      alert("Passwords do not match!");
-      return;
+  <!-- Scripts -->
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
     }
 
-    const res = await fetch("http://localhost:5000/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
+    async function registerUser(event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm_password").value;
+      const messageBox = document.getElementById("message");
 
-    const result = await res.json();
-    alert(result.message);
-    console.log(result);
-  }
-</script>
+      if (password !== confirm) {
+        messageBox.textContent = "⚠️ Passwords do not match.";
+        messageBox.style.color = "orange";
+        return;
+      }
+
+      const res = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, username })
+      });
+
+      const result = await res.json();
+      messageBox.textContent = result.message;
+
+      if (res.ok) {
+        messageBox.style.color = "lightgreen";
+        localStorage.setItem("user_email", email);
+        localStorage.setItem("user_name", username);
+        setTimeout(() => window.location.href = "/login.html", 1500);
+      } else {
+        messageBox.style.color = "orange";
+      }
+    }
+  </script>
+
+</body>
+</html>

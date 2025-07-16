@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proof of Activity - 1Ummah</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #141e30, #243b55);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    .btn {
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #00c9a7;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      margin-top: 30px;
+    }
+    .btn:hover {
+      background-color: #00b39f;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>✅ Confirm Your Activity</h1>
+  <p>To start mining, please confirm you are active.</p>
+  <button class="btn" onclick="confirmActivity()">I'm Active</button>
+  <div id="message"></div>
+
+  <script>
+    async function confirmActivity() {
+      const email = localStorage.getItem("user_email");
+      const messageBox = document.getElementById("message");
+
+      if (!email) {
+        messageBox.textContent = "❌ Please log in first.";
+        return;
+      }
+
+      const res = await fetch("/api/activity/proof", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      messageBox.textContent = data.message;
+      if (data.success) {
+        setTimeout(() => {
+          window.location.href = "/mine.html";
+        }, 2000);
+      }
+    }
+  </script>
+
+</body>
+</html>

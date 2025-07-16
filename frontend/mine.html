@@ -1,69 +1,132 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>إثبات النشاط</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mine Coins - 1Ummah</title>
   <style>
     body {
-      font-family: sans-serif;
-      background-color: #f2f2f2;
-      padding: 20px;
-      text-align: center;
-    }
-    .video-container {
-      max-width: 100%;
-      margin: auto;
-    }
-    iframe {
-      width: 100%;
-      max-width: 480px;
-      height: 270px;
-      border: none;
-    }
-    button {
-      padding: 12px 20px;
-      font-size: 18px;
-      margin-top: 20px;
-      background-color: #4CAF50;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+    }
+
+    .logo {
+      height: 40px;
+    }
+
+    main {
+      flex: 1;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #00c9a7;
       border: none;
       border-radius: 10px;
       cursor: pointer;
+      color: white;
+      transition: background-color 0.3s ease;
     }
-    button:hover {
-      background-color: #45a049;
+
+    .btn:hover {
+      background-color: #00b39f;
     }
-    .status {
-      margin-top: 15px;
+
+    #status {
+      margin-top: 20px;
       font-size: 16px;
-      color: green;
+      color: #ffe;
+    }
+
+    footer {
+      background-color: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
 
-  <h2>من فضلك شاهد هذا الفيديو واشترك في القناة</h2>
+  <header>
+    <img src="/assets/logo.png" alt="1Ummah Logo" class="logo" />
+  </header>
 
-  <div class="video-container">
-    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" allowfullscreen></iframe>
-  </div>
+  <main>
+    <h1>⛏️ Mine UMH Coins</h1>
+    <p>Each mining session earns you <strong>3 UMH</strong>.</p>
 
-  <button onclick="confirmActivity()">✅ لقد اشتركت</button>
+    <button class="btn" onclick="startMining()">Start Mining</button>
+    <div id="status"></div>
+  </main>
 
-  <div class="status" id="status"></div>
+  <footer>
+    &copy; 2025 1Ummah Blockchain. All rights reserved.
+  </footer>
 
   <script>
-    function confirmActivity() {
-      fetch("/api/activity/proof", {
+    async function startMining() {
+      const email = localStorage.getItem("user_email");
+      const wallet = localStorage.getItem("user_wallet");
+      const referrer = localStorage.getItem("user_referrer") || "";
+      const statusBox = document.getElementById("status");
+
+      if (!email || !wallet) {
+        statusBox.textContent = "❌ You must be logged in.";
+        return;
+      }
+
+      // Check activity proof
+      const activityRes = await fetch(`/api/activity/status?email=${email}`);
+      const activityData = await activityRes.json();
+      if (!activityData.verified) {
+        statusBox.textContent = "⚠️ Please confirm your activity before mining.";
+        return;
+      }
+
+      // Check mining status
+      const check = await fetch(`/api/mine/status?email=${email}`);
+      const checkRes = await check.json();
+      if (!checkRes.eligible) {
+        statusBox.textContent = `⏳ Wait ${checkRes.remaining_hours.toFixed(1)} hours before mining again.`;
+        return;
+      }
+
+      // Mine coins
+      const res = await fetch("/api/mine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: localStorage.getItem("user_email") || "" })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("status").textContent = data.message;
+        body: JSON.stringify({ email, wallet, referrer })
       });
+
+      const result = await res.json();
+      statusBox.textContent = result.message || "⚠️ Mining failed.";
     }
   </script>
 
