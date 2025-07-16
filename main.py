@@ -5,6 +5,7 @@ from blockchain.kyc import KYCRegistry
 from blockchain.admin import issue_coins, burn_coins
 import datetime
 import json
+import os  # ← تمت إضافته هنا
 
 # إعداد النظام
 app = Flask(__name__)
@@ -105,4 +106,5 @@ def burn():
 
 # ✅ تشغيل التطبيق
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 8080))  # ← هذا السطر يسمح بالمرونة حسب بيئة التشغيل
+    app.run(host="0.0.0.0", port=port)
