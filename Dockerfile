@@ -1,23 +1,20 @@
-# Use the official Python image
-FROM python:3.10-slim
+# استخدام صورة Python رسمية خفيفة
+FROM python:3.11-slim
 
-# Set the working directory
+# تحديد مجلد العمل داخل الحاوية
 WORKDIR /app
 
-# Copy requirements file and install dependencies
-COPY requirements.txt requirements.txt
+# نسخ ملف المتطلبات أولاً
+COPY requirements.txt .
+
+# تثبيت الحزم
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
+# نسخ بقية ملفات المشروع
 COPY . .
 
-# Set environment variable to allow flask to run
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=8080
-
-# Expose port
+# فتح المنفذ 8080 لتشغيل التطبيق
 EXPOSE 8080
 
-# Start the application
+# أمر التشغيل الافتراضي
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
