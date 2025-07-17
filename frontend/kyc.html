@@ -3,115 +3,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KYC Verification - 1Ummah</title>
+  <title>KYC Verification</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: white;
+      font-family: sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px;
+      justify-content: center;
+      min-height: 100vh;
     }
-    h1 {
-      margin-bottom: 20px;
-    }
+
     .container {
-      background-color: rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      max-width: 500px;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 400px;
       width: 100%;
+    }
+
+    h2 {
       text-align: center;
+      margin-bottom: 1.5rem;
     }
-    input, select {
+
+    input[type="file"] {
+      margin-bottom: 1rem;
       width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
     }
-    .btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #00c9a7;
+
+    button {
+      background-color: #2e86de;
       color: white;
-      font-size: 18px;
       border: none;
+      padding: 0.75rem;
+      width: 100%;
+      font-size: 1rem;
       border-radius: 8px;
-      margin-top: 10px;
       cursor: pointer;
     }
-    .btn:hover {
-      background-color: #00b39f;
+
+    button:hover {
+      background-color: #2166b0;
     }
-    #status {
-      margin-top: 20px;
-      font-size: 16px;
+
+    #statusBox {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      text-align: center;
+      font-weight: bold;
+      border-radius: 8px;
     }
+
+    .pending { background-color: #fff3cd; color: #856404; }
+    .approved { background-color: #d4edda; color: #155724; }
+    .rejected { background-color: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
-
-  <h1>KYC Verification</h1>
   <div class="container">
-    <p id="kycStatus">Checking your KYC status...</p>
+    <h2>KYC Verification</h2>
+    
+    <input type="file" id="documentImage" accept="image/*" required />
+    <input type="file" id="selfieImage" accept="image/*" required />
 
-    <input type="text" id="fullname" placeholder="Full Name" required />
-    <input type="file" id="kycDocument" accept="image/*,application/pdf" required />
-    <button class="btn" onclick="submitKYC()">Submit for Review</button>
+    <button id="uploadBtn">Upload Documents</button>
 
-    <div id="status"></div>
+    <div id="statusBox">Checking status...</div>
   </div>
 
   <script>
-    const email = localStorage.getItem("user_email");
-    const kycStatus = document.getElementById("kycStatus");
+    const email = localStorage.getItem("email") || prompt("Enter your email:");
+    localStorage.setItem("email", email);
+    const statusBox = document.getElementById("statusBox");
 
     async function checkStatus() {
-      if (!email) {
-        kycStatus.textContent = "❌ Please login first.";
-        return;
-      }
+      try {
+        const res = await fetch(`/kyc/status/${email}`);
+        const data = await res.json();
+        const status = data.status || "not_submitted";
 
-      const res = await fetch(`/api/kyc/status?email=${email}`);
-      const data = await res.json();
-      kycStatus.textContent = `Your current KYC status: ${data.status.toUpperCase()}`;
+        if (status === "approved") {
+          statusBox.textContent = "✅ KYC Approved";
+          statusBox.className = "approved";
+        } else if (status === "rejected") {
+          statusBox.textContent = "❌ KYC Rejected";
+          statusBox.className = "rejected";
+        } else if (status === "pending") {
+          statusBox.textContent = "⏳ KYC Pending";
+          statusBox.className = "pending";
+        } else {
+          statusBox.textContent = "❗ Not Submitted";
+          statusBox.className = "";
+        }
+      } catch (err) {
+        statusBox.textContent = "Error fetching KYC status.";
+      }
     }
 
-    async function submitKYC() {
-      const fullname = document.getElementById("fullname").value.trim();
-      const file = document.getElementById("kycDocument").files[0];
-      const statusBox = document.getElementById("status");
+    checkStatus();
 
-      if (!fullname || !file) {
-        statusBox.textContent = "⚠️ All fields are required.";
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const documentFile = document.getElementById("documentImage").files[0];
+      const selfieFile = document.getElementById("selfieImage").files[0];
+
+      if (!documentFile || !selfieFile) {
+        statusBox.textContent = "⚠️ Please select both document and selfie.";
+        statusBox.className = "rejected";
         return;
       }
 
       const formData = new FormData();
       formData.append("email", email);
-      formData.append("fullname", fullname);
-      formData.append("document", file);
+      formData.append("document", documentFile);
+      formData.append("selfie", selfieFile);
 
-      const res = await fetch("/api/kyc/upload", {
-        method: "POST",
-        body: formData
-      });
+      statusBox.textContent = "Uploading...";
+      statusBox.className = "pending";
 
-      const result = await res.json();
-      statusBox.textContent = result.message;
-      if (res.ok) {
-        kycStatus.textContent = "Your current KYC status: PENDING";
+      try {
+        const res = await fetch("/kyc/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (res.ok) {
+          statusBox.textContent = "✅ Documents uploaded successfully!";
+          statusBox.className = "approved";
+          checkStatus();
+        } else {
+          statusBox.textContent = "❌ Upload failed.";
+          statusBox.className = "rejected";
+        }
+      } catch (err) {
+        statusBox.textContent = "❌ Error uploading files.";
+        statusBox.className = "rejected";
       }
-    }
-
-    checkStatus();
+    });
   </script>
-
 </body>
 </html>
