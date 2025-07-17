@@ -1,167 +1,49 @@
+from flask import Flask, request, jsonify
+import firebase_admin
+from firebase_admin import credentials, firestore
+from datetime import datetime
 import os
-import json
-import time
-from .block import Block
-from .user import UserManager
-from .crypto_utils import verify_signature
 
-BLOCKCHAIN_DATA_FILE = 'data/blockchain_data.json'
+app = Flask(__name__)
 
-class Blockchain:
-    def __init__(self):
-        self.chain = []
-        self.user_manager = UserManager()
-        self.load_blockchain()
+# تهيئة Firebase
+cred = credentials.Certificate("firebase_credentials.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-    def create_genesis_block(self):
-        genesis = Block(0, "0", [], "GENESIS")
-        self.chain.append(genesis)
-        self.save_blockchain()
+# المجلد أو المسار الخاص بالبلوكشين في Firestore
+blockchain_ref = db.collection("blockchain")
 
-    def load_blockchain(self):
-        if os.path.exists(BLOCKCHAIN_DATA_FILE):
-            with open(BLOCKCHAIN_DATA_FILE, 'r') as f:
-                data = json.load(f)
-                self.chain = [Block.from_dict(b) for b in data]
-        else:
-            self.create_genesis_block()
+# دالة لتحميل البيانات من Firestore
+def load_blockchain():
+    docs = blockchain_ref.order_by("index").stream()
+    return [doc.to_dict() for doc in docs]
 
-    def save_blockchain(self):
-        data = [block.to_dict() for block in self.chain]
-        os.makedirs(os.path.dirname(BLOCKCHAIN_DATA_FILE), exist_ok=True)
-        with open(BLOCKCHAIN_DATA_FILE, 'w') as f:
-            json.dump(data, f, indent=4)
+# دالة لحفظ بلوك جديد
+def save_block(block):
+    blockchain_ref.document(str(block['index'])).set(block)
 
-    def get_last_block(self):
-        return self.chain[-1]
+@app.route('/')
+def index():
+    return "1Ummah Blockchain API running successfully with Firestore ✅"
 
-    def select_validator(self):
-        # أبسط اختيار: أول مستخدم رصيده >= 2
-        for user in self.user_manager.users.values():
-            if user.balance >= 2:
-                return user
-        return None
+@app.route('/blockchain', methods=['GET'])
+def get_blockchain():
+    blockchain = load_blockchain()
+    return jsonify(blockchain)
 
-    def mine(self, address: str):
-        user = self.user_manager.get_user(address)
-        if not user:
-            print("المستخدم غير مسجل.")
-            return
-
-        if not user.kyc_verified:
-            print("المستخدم لم يجتز KYC.")
-            return
-
-        now = time.time()
-        if now - user.last_mining_timestamp < 86400:  # 24 ساعة
-            print("لا يمكن التعدين أكثر من مرة كل 24 ساعة.")
-            return
-
-        # مكافأة التعدين
-        reward = 3
-        user.balance += reward
-        user.last_mining_timestamp = now
-        user.mining_cycles += 1
-
-        transactions = [{
-            "type": "mining",
-            "to": address,
-            "amount": reward,
-            "timestamp": now
-        }]
-
-        # تحقق من مكافأة الإحالة
-        if user.referrer and not user.referral_paid and user.mining_cycles >= 30:
-            ref_user = self.user_manager.get_user(user.referrer)
-            if ref_user:
-                referral_bonus = reward * 0.02
-                ref_user.balance += referral_bonus
-                transactions.append({
-                    "type": "referral_bonus",
-                    "to": user.referrer,
-                    "from": address,
-                    "amount": referral_bonus,
-                    "timestamp": now
-                })
-                user.referral_paid = True
-
-        # المدقق
-        validator = self.select_validator()
-        if not validator:
-            print("لا يوجد مدقق متاح.")
-            return
-
-        block = Block(
-            index=len(self.chain),
-            previous_hash=self.get_last_block().hash,
-            transactions=transactions,
-            validator=validator.address
-        )
-        block.sign_block(validator.private_key)
-        self.chain.append(block)
-        self.save_blockchain()
-        self.user_manager.save_users()
-        print(f"تم تعدين بلوك #{block.index} للمستخدم {address}.")
-
-    def transfer(self, sender_addr: str, receiver_addr: str, amount: float):
-        sender = self.user_manager.get_user(sender_addr)
-        receiver = self.user_manager.get_user(receiver_addr)
-
-        if not sender or not receiver:
-            print("أحد العنوانين غير مسجل.")
-            return
-
-        if not sender.kyc_verified or not receiver.kyc_verified:
-            print("الطرفان يجب أن يجتازا KYC.")
-            return
-
-        if sender.balance < amount:
-            print("الرصيد غير كافٍ.")
-            return
-
-        now = time.time()
-        burned = amount * 0.02
-        net_amount = amount - burned
-
-        sender.balance -= amount
-        receiver.balance += net_amount
-
-        transactions = [{
-            "type": "transfer",
-            "from": sender_addr,
-            "to": receiver_addr,
-            "amount": net_amount,
-            "burned": burned,
-            "timestamp": now
-        }]
-
-        validator = self.select_validator()
-        if not validator:
-            print("لا يوجد مدقق.")
-            return
-
-        block = Block(
-            index=len(self.chain),
-            previous_hash=self.get_last_block().hash,
-            transactions=transactions,
-            validator=validator.address
-        )
-        block.sign_block(validator.private_key)
-        self.chain.append(block)
-        self.save_blockchain()
-        self.user_manager.save_users()
-        print(f"تم تحويل {net_amount:.2f} من {sender_addr} إلى {receiver_addr}.")
-
-    def validate_chain(self):
-        for i in range(1, len(self.chain)):
-            current = self.chain[i]
-            prev = self.chain[i - 1]
-            if current.previous_hash != prev.hash:
-                return False
-            if current.hash != current.calculate_hash():
-                return False
-            # تحقق من التوقيع
-            validator_user = self.user_manager.get_user(current.validator)
-            if not validator_user or not verify_signature(validator_user.public_key, bytes.fromhex(current.signature), current.hash.encode()):
-                return False
-        return True
+@app.route('/add_block', methods=['POST'])
+def add_block():
+    data = request.json
+    blockchain = load_blockchain()
+    
+    last_block = blockchain[-1] if blockchain else {"index": 0, "hash": "0"}
+    new_block = {
+        "index": last_block['index'] + 1,
+        "timestamp": datetime.utcnow().isoformat(),
+        "data": data['data'],
+        "previous_hash": last_block['hash'],
+        "hash": str(hash(str(data['data']) + last_block['hash']))
+    }
+    save_block(new_block)
+    return jsonify(new_block), 201
