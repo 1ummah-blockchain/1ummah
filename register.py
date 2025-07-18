@@ -13,7 +13,7 @@ def register_user():
     if success:
         print(f"تم إنشاء المستخدم '{username}' بنجاح.")
         print("عنوان المحفظة:", wallet_data["address"])
-        print("كلمات الاستعادة:", ", ".join(wallet_data["recovery_words"]))
+        print("كلمات الاستعادة:", ", ".join(wallet_data["recovery_phrase"].split()))
     else:
         print(f"المستخدم '{username}' موجود بالفعل.")
 
