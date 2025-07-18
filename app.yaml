@@ -4,7 +4,7 @@ entrypoint: gunicorn -b :$PORT main:app
 
 handlers:
   - url: /assets
-    static_dir: frontend/assets
+    static_dir: frontend/assetes
 
   - url: /.*
     script: auto
