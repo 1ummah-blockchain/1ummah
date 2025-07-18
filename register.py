@@ -1,7 +1,7 @@
 import os
 import sys
 from data.users import add_user
-from utils.wallet import generate_wallet
+from blockchain.wallet import generate_wallet
 
 def register_user():
     print("مرحبًا بك في تسجيل مستخدم جديد")
