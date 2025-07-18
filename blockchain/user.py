@@ -1,5 +1,8 @@
+import json
+import os
 import time
-from .firestore_db import firestore
+
+USERS_FILE = "data/users.json"
 
 class User:
     def __init__(self, address, balance=0, kyc_verified=False, referrer=None, mining_cycles=0, referral_paid=False, last_mining_timestamp=0):
@@ -35,24 +38,31 @@ class User:
         )
 
 class UserManager:
-    def __init__(self):
-        self.collection = firestore.collection("users")
-        self.users = {}
-        self.load_users()
+    def __init__(self, users_file=USERS_FILE):
+        self.users_file = users_file
+        self.users = self.load_users()
 
     def load_users(self):
-        self.users = {}
-        docs = self.collection.stream()
-        for doc in docs:
-            user = User.from_dict(doc.to_dict())
-            self.users[user.address] = user
+        if not os.path.exists(self.users_file):
+            return {}
+        with open(self.users_file, "r") as f:
+            data = json.load(f)
+            return {addr: User.from_dict(info) for addr, info in data.items()}
 
-    def save_user(self, user: User):
-        self.collection.document(user.address).set(user.to_dict())
-        self.users[user.address] = user
+    def save_users(self):
+        with open(self.users_file, "w") as f:
+            json.dump({addr: user.to_dict() for addr, user in self.users.items()}, f, indent=2)
 
     def get_user(self, address):
         return self.users.get(address)
 
     def add_user(self, user: User):
-        self.save_user(user)
+        if user.address in self.users:
+            return False  # المستخدم موجود بالفعل
+        self.users[user.address] = user
+        self.save_users()
+        return True
+
+    def update_user(self, user: User):
+        self.users[user.address] = user
+        self.save_users()
