@@ -1,8 +1,9 @@
-# blockchain/wallet.py
-
+import os
+import random
+import hashlib
 import base58
 from ecdsa import SigningKey, SECP256k1
-from .crypto_utils import sign_message, verify_signature, serialize_public_key
+from ecdsa.util import randrange_from_seed__trytryagain
 
 class Wallet:
     def __init__(self, private_key=None):
@@ -12,21 +13,45 @@ class Wallet:
             self.signing_key = SigningKey.generate(curve=SECP256k1)
 
         self.verifying_key = self.signing_key.verifying_key
-        self.address = self.generate_address()
+        self.private_key = self.signing_key.to_string().hex()
+        self.public_key = self.serialize_public_key(self.verifying_key)
+        self.address = self.generate_address(self.public_key)
+        self.recovery_phrase = self.generate_recovery_phrase()
 
-    def generate_address(self):
-        pub_key_bytes = self.verifying_key.to_string()
-        address_bytes = base58.b58encode(pub_key_bytes)
-        return address_bytes.decode()
+    def serialize_public_key(self, verifying_key):
+        return verifying_key.to_string().hex()
 
-    def get_private_key(self):
-        return self.signing_key.to_string().hex()
+    def generate_address(self, public_key_hex):
+        sha256_hash = hashlib.sha256(bytes.fromhex(public_key_hex)).digest()
+        ripemd160 = hashlib.new('ripemd160')
+        ripemd160.update(sha256_hash)
+        return base58.b58encode(ripemd160.digest()).decode()
 
-    def get_public_key(self):
-        return serialize_public_key(self.verifying_key)
+    def generate_recovery_phrase(self):
+        words = []
+        for _ in range(12):
+            word = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=5))
+            words.append(word)
+        return ' '.join(words)
 
     def sign(self, message):
-        return sign_message(self.signing_key, message)
+        return self.signing_key.sign(message.encode()).hex()
 
-    def verify(self, message, signature):
-        return verify_signature(self.verifying_key, message, signature)
+    def verify(self, message, signature_hex):
+        try:
+            return self.verifying_key.verify(bytes.fromhex(signature_hex), message.encode())
+        except:
+            return False
+
+    def to_dict(self):
+        return {
+            "private_key": self.private_key,
+            "public_key": self.public_key,
+            "address": self.address,
+            "recovery_phrase": self.recovery_phrase
+        }
+
+# دالة مساعدة لتوليد محفظة جديدة
+def generate_wallet():
+    wallet = Wallet()
+    return wallet.to_dict()
