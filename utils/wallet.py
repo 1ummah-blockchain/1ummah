@@ -32,3 +32,8 @@ class Wallet:
             "address": self.address,
             "recovery_phrase": self.recovery_phrase
         }
+
+# دالة توليد المحفظة
+def generate_wallet():
+    wallet = Wallet()
+    return wallet.to_dict()
