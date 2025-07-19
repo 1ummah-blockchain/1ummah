@@ -1,17 +1,30 @@
-# routes/mine.py
-
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from blockchain.blockchain import blockchain
 from blockchain.transaction import Transaction
 from blockchain.referral import get_referral_bonus_transaction
-from firestore_db import db
+import json
+import os
 
 mine_routes = Blueprint('mine_routes', __name__)
 
 MINING_REWARD = 3
 MINING_INTERVAL_HOURS = 24
+USER_DATA_FILE = "data/users.json"
 
+# التأكد من وجود مجلد data
+os.makedirs("data", exist_ok=True)
+
+def load_users():
+    if not os.path.exists(USER_DATA_FILE):
+        with open(USER_DATA_FILE, "w") as f:
+            json.dump({}, f)
+    with open(USER_DATA_FILE, "r") as f:
+        return json.load(f)
+
+def save_users(users):
+    with open(USER_DATA_FILE, "w") as f:
+        json.dump(users, f, indent=2)
 
 @mine_routes.route('/api/mine/status', methods=['GET'])
 def check_mining_status():
@@ -19,15 +32,13 @@ def check_mining_status():
     if not email:
         return jsonify({'error': 'Email is required'}), 400
 
-    user_ref = db.collection("users").document(email)
-    user_doc = user_ref.get()
+    users = load_users()
+    user = users.get(email)
 
-    if not user_doc.exists:
+    if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    user_data = user_doc.to_dict()
-    last_mined = user_data.get("last_mined")
-
+    last_mined = user.get("last_mined")
     if last_mined:
         last_time_dt = datetime.fromisoformat(last_mined)
         now = datetime.utcnow()
@@ -41,7 +52,6 @@ def check_mining_status():
 
     return jsonify({'eligible': True})
 
-
 @mine_routes.route('/api/mine', methods=['POST'])
 def mine_coins():
     data = request.get_json()
@@ -52,20 +62,17 @@ def mine_coins():
     if not email or not wallet:
         return jsonify({'error': 'Email and wallet are required'}), 400
 
-    user_ref = db.collection("users").document(email)
-    user_doc = user_ref.get()
+    users = load_users()
+    user = users.get(email)
 
-    if not user_doc.exists:
+    if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    user_data = user_doc.to_dict()
-
     # التحقق من إثبات النشاط
-    if not user_data.get("activity_verified", False):
+    if not user.get("activity_verified", False):
         return jsonify({'success': False, 'message': '❌ Please confirm your activity before mining.'}), 403
 
-    # التحقق من الوقت بين عمليات التعدين
-    last_mined = user_data.get("last_mined")
+    last_mined = user.get("last_mined")
     if last_mined:
         last_time_dt = datetime.fromisoformat(last_mined)
         now = datetime.utcnow()
@@ -83,10 +90,9 @@ def mine_coins():
         if bonus_tx:
             blockchain.add_transaction(bonus_tx)
 
-    # تحديث بيانات المستخدم
-    user_ref.update({
-        "last_mined": datetime.utcnow().isoformat(),
-        "activity_verified": False  # حذف إثبات النشاط بعد التعدين
-    })
+    # تحديث المستخدم
+    users[email]["last_mined"] = datetime.utcnow().isoformat()
+    users[email]["activity_verified"] = False
+    save_users(users)
 
     return jsonify({'success': True, 'message': '🎉 You earned 3 UMH!'}), 200
