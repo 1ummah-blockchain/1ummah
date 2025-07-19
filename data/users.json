@@ -1,1 +1,13 @@
-{}
+[
+  {
+    "user_id": "admin001",
+    "username": "admin",
+    "email": "1ummah.blockchain@gmail.com",
+    "password": "hashed_admin_password_here",
+    "role": "admin",
+    "verified": true,
+    "created_at": "2025-07-18T00:00:00Z",
+    "wallets": [],
+    "kyc_status": "approved"
+  }
+]
