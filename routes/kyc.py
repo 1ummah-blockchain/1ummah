@@ -1,8 +1,7 @@
-# routes/kyc.py
-
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
+import uuid
 from blockchain.kyc_logic import process_kyc_document, is_user_verified
 
 kyc_bp = Blueprint("kyc_bp", __name__)
@@ -21,16 +20,18 @@ def upload_kyc():
     file = request.files.get('file')
 
     if not user_id or not file or not allowed_file(file.filename):
-        return jsonify({'error': 'Invalid input'}), 400
+        return jsonify({'success': False, 'error': 'Invalid input'}), 400
 
-    filename = secure_filename(f"{user_id}_{file.filename}")
-    save_path = os.path.join(UPLOAD_FOLDER, filename)
+    extension = file.filename.rsplit('.', 1)[1].lower()
+    unique_name = secure_filename(f"{user_id}_{uuid.uuid4().hex}.{extension}")
+    save_path = os.path.join(UPLOAD_FOLDER, unique_name)
     file.save(save_path)
 
     result = process_kyc_document(user_id, save_path)
-    return jsonify({'result': result})
+
+    return jsonify({'success': True, 'result': result})
 
 @kyc_bp.route('/kyc_status/<user_id>', methods=['GET'])
 def kyc_status(user_id):
     status = is_user_verified(user_id)
-    return jsonify({'kyc_verified': status})
+    return jsonify({'success': True, 'kyc_verified': status})
