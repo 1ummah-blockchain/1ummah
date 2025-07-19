@@ -1,20 +1,24 @@
-# استخدام صورة Python رسمية خفيفة
+# استخدم صورة Python خفيفة
 FROM python:3.11-slim
 
-# تحديد مجلد العمل داخل الحاوية
+# تثبيت أدوات البناء والمترجم C
+RUN apt-get update && apt-get install -y \
+    build-essential gcc libffi-dev libssl-dev \
+    libdbus-1-dev libglib2.0-dev pkg-config \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# تحديد مجلد العمل
 WORKDIR /app
 
-# نسخ ملف المتطلبات أولاً
+# نسخ ملف المتطلبات وتثبيت الحزم
 COPY requirements.txt .
-
-# تثبيت الحزم
 RUN pip install --no-cache-dir -r requirements.txt
 
-# نسخ بقية ملفات المشروع
+# نسخ باقي المشروع
 COPY . .
 
-# فتح المنفذ 8080 لتشغيل التطبيق
+# فتح المنفذ
 EXPOSE 8080
 
-# أمر التشغيل الافتراضي
+# أمر التشغيل
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
