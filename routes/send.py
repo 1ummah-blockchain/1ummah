@@ -1,15 +1,14 @@
-# routes/send.py
-
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from blockchain.blockchain import blockchain
 from blockchain.transaction import Transaction
-from firestore_db import db
+import sqlite3
 
 send_routes = Blueprint('send_routes', __name__)
 
 MIN_TRANSFER_AMOUNT = 21
 TRANSFER_INTERVAL_HOURS = 24
+DB_PATH = "database.db"  # تأكد أن قاعدة البيانات بهذا الاسم موجودة
 
 @send_routes.route('/api/send', methods=['POST'])
 def send_coins():
@@ -22,27 +21,30 @@ def send_coins():
     if not email or not sender or not recipient or not amount:
         return jsonify({"error": "Missing required fields"}), 400
 
-    # تحقق من حالة KYC من قاعدة البيانات
-    user_ref = db.collection("users").document(email)
-    user_doc = user_ref.get()
-    if not user_doc.exists or not user_doc.to_dict().get("kyc"):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # التحقق من KYC
+    cursor.execute("SELECT kyc FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    if not user or not user[0]:
+        conn.close()
         return jsonify({"success": False, "message": "❌ KYC verification required."}), 403
 
     # التحقق من الحد الأدنى
     if amount < MIN_TRANSFER_AMOUNT:
+        conn.close()
         return jsonify({"success": False, "message": "❌ Minimum transfer is 21 UMH."}), 400
 
     # التحقق من وقت آخر تحويل
-    transfer_ref = db.collection("transfers").document(email)
-    transfer_doc = transfer_ref.get()
-
-    if transfer_doc.exists:
-        last_time_str = transfer_doc.to_dict().get("last_transfer")
-        last_time = datetime.fromisoformat(last_time_str)
+    cursor.execute("SELECT last_transfer FROM transfers WHERE email = ?", (email,))
+    row = cursor.fetchone()
+    if row:
+        last_time = datetime.fromisoformat(row[0])
         now = datetime.utcnow()
         hours_passed = (now - last_time).total_seconds() / 3600
-
         if hours_passed < TRANSFER_INTERVAL_HOURS:
+            conn.close()
             remaining = TRANSFER_INTERVAL_HOURS - hours_passed
             return jsonify({
                 "success": False,
@@ -54,8 +56,14 @@ def send_coins():
     blockchain.add_transaction(tx)
 
     # تحديث وقت آخر تحويل
-    transfer_ref.set({
-        "last_transfer": datetime.utcnow().isoformat()
-    })
+    now_str = datetime.utcnow().isoformat()
+    cursor.execute("""
+        INSERT INTO transfers (email, last_transfer)
+        VALUES (?, ?)
+        ON CONFLICT(email) DO UPDATE SET last_transfer=excluded.last_transfer
+    """, (email, now_str))
+
+    conn.commit()
+    conn.close()
 
     return jsonify({"success": True, "message": f"✅ {amount} UMH sent to {recipient}."}), 200
