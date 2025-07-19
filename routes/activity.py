@@ -1,15 +1,18 @@
-# routes/activity.py
-
 from flask import Blueprint, request, jsonify
 import os
 import json
 
 activity_bp = Blueprint("activity_bp", __name__)
 
-ACTIVITY_LOG_PATH = 'data/activity_log.json'
+DATA_DIR = 'data'
+ACTIVITY_LOG_PATH = os.path.join(DATA_DIR, 'activity_log.json')
 
+
+def ensure_data_directory():
+    os.makedirs(DATA_DIR, exist_ok=True)
 
 def load_activity_log():
+    ensure_data_directory()
     if not os.path.exists(ACTIVITY_LOG_PATH):
         with open(ACTIVITY_LOG_PATH, 'w') as f:
             json.dump({}, f)
@@ -17,6 +20,7 @@ def load_activity_log():
         return json.load(f)
 
 def save_activity_log(log):
+    ensure_data_directory()
     with open(ACTIVITY_LOG_PATH, 'w') as f:
         json.dump(log, f, indent=2)
 
