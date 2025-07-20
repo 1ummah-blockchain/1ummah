@@ -10,10 +10,10 @@ mine_routes = Blueprint('mine_routes', __name__)
 
 MINING_REWARD = 3
 MINING_INTERVAL_HOURS = 24
-USER_DATA_FILE = "data/users.json"
+USER_DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'users.json')
 
 # التأكد من وجود مجلد data
-os.makedirs("data", exist_ok=True)
+os.makedirs(os.path.join(os.path.dirname(__file__), '..', 'data'), exist_ok=True)
 
 def load_users():
     if not os.path.exists(USER_DATA_FILE):
