@@ -4,7 +4,7 @@ import os
 
 # استيراد الراوترات
 from routes.kyc import kyc_bp
-from routes.mine import mine_bp
+from routes.mine import mine_routes  # تم تعديل هذا السطر
 from routes.send import send_bp
 from routes.auth import auth_bp
 from routes.referral import referral_bp
@@ -17,7 +17,7 @@ CORS(app)
 # تسجيل الـ Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(kyc_bp, url_prefix='/api')
-app.register_blueprint(mine_bp, url_prefix='/api')
+app.register_blueprint(mine_routes, url_prefix='/api')  # تم تعديل هذا السطر
 app.register_blueprint(send_bp, url_prefix='/api')
 app.register_blueprint(referral_bp, url_prefix='/api')
 app.register_blueprint(wallet_bp, url_prefix='/api')
