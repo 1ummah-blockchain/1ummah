@@ -1,31 +1,30 @@
 from flask import Flask, request, jsonify
-import firebase_admin
-from firebase_admin import credentials, firestore
 from datetime import datetime
+import json
 import os
 
 app = Flask(__name__)
 
-# تهيئة Firebase
-cred = credentials.Certificate("firebase_credentials.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+# مسار ملف التخزين
+CHAIN_FILE = os.path.join("data", "transactions.json")
 
-# المجلد أو المسار الخاص بالبلوكشين في Firestore
-blockchain_ref = db.collection("blockchain")
-
-# دالة لتحميل البيانات من Firestore
+# تحميل البلوكتشين من الملف
 def load_blockchain():
-    docs = blockchain_ref.order_by("index").stream()
-    return [doc.to_dict() for doc in docs]
+    if not os.path.exists(CHAIN_FILE):
+        return []
+    with open(CHAIN_FILE, "r") as f:
+        return json.load(f)
 
-# دالة لحفظ بلوك جديد
+# حفظ بلوك جديد في الملف
 def save_block(block):
-    blockchain_ref.document(str(block['index'])).set(block)
+    chain = load_blockchain()
+    chain.append(block)
+    with open(CHAIN_FILE, "w") as f:
+        json.dump(chain, f, indent=4)
 
 @app.route('/')
 def index():
-    return "1Ummah Blockchain API running successfully with Firestore ✅"
+    return "1Ummah Blockchain API running successfully ✅"
 
 @app.route('/blockchain', methods=['GET'])
 def get_blockchain():
