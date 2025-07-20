@@ -2,11 +2,12 @@ from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
+import tempfile
 from blockchain.kyc_logic import process_kyc_document, is_user_verified
 
 kyc_bp = Blueprint("kyc_bp", __name__)
 
-UPLOAD_FOLDER = 'uploads/kyc_documents'
+UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'kyc_documents')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
