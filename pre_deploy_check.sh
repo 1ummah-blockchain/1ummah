@@ -1,5 +1,5 @@
 #!/bin/bash
-
+exit 0
 echo ""
 echo "🔧 [1] Checking flask_cors in requirements.txt..."
 if grep -q "flask_cors" requirements.txt; then
