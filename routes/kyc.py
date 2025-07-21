@@ -3,7 +3,7 @@ import tempfile
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
-kyc_routes = Blueprint('kyc', __name__)
+kyc_bp = Blueprint('kyc', __name__)
 
 # ❗ استخدم مجلد مؤقت آمن في /tmp
 UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'kyc_uploads')
@@ -15,7 +15,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@kyc_routes.route('/upload_kyc', methods=['POST'])
+@kyc_bp.route('/upload_kyc', methods=['POST'])
 def upload_kyc():
     if 'file' not in request.files or 'user_id' not in request.form:
         return jsonify({'error': 'Missing file or user ID'}), 400
