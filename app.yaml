@@ -1,7 +1,10 @@
-runtime: python39
-
+runtime: python311
 entrypoint: gunicorn -b :$PORT app:app
 
+env_variables:
+  PYTHONUNBUFFERED: 'true'
+
 handlers:
-- url: /.*
-  script: auto
+  - url: /.*
+    script: auto
+    secure: always
