@@ -1,38 +1,33 @@
+import os
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-import os
-import uuid
-import tempfile
-from blockchain.kyc_logic import process_kyc_document, is_user_verified
 
-kyc_bp = Blueprint("kyc_bp", __name__)
+kyc_routes = Blueprint('kyc', __name__)
 
-UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'kyc_documents')
+UPLOAD_FOLDER = os.path.join('static', 'kyc_uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@kyc_bp.route('/upload_kyc', methods=['POST'])
+@kyc_routes.route('/upload_kyc', methods=['POST'])
 def upload_kyc():
-    user_id = request.form.get('user_id')
-    file = request.files.get('file')
+    if 'file' not in request.files or 'user_id' not in request.form:
+        return jsonify({'error': 'Missing file or user ID'}), 400
 
-    if not user_id or not file or not allowed_file(file.filename):
-        return jsonify({'success': False, 'error': 'Invalid input'}), 400
+    file = request.files['file']
+    user_id = request.form['user_id']
 
-    extension = file.filename.rsplit('.', 1)[1].lower()
-    unique_name = secure_filename(f"{user_id}_{uuid.uuid4().hex}.{extension}")
-    save_path = os.path.join(UPLOAD_FOLDER, unique_name)
-    file.save(save_path)
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
 
-    result = process_kyc_document(user_id, save_path)
+    if file and allowed_file(file.filename):
+        filename = secure_filename(user_id + "_" + file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+        return jsonify({'message': 'KYC uploaded successfully', 'file_path': file_path}), 200
 
-    return jsonify({'success': True, 'result': result})
-
-@kyc_bp.route('/kyc_status/<user_id>', methods=['GET'])
-def kyc_status(user_id):
-    status = is_user_verified(user_id)
-    return jsonify({'success': True, 'kyc_verified': status})
+    return jsonify({'error': 'File type not allowed'}), 400
