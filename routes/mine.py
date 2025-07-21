@@ -10,10 +10,11 @@ mine_routes = Blueprint('mine_routes', __name__)
 
 MINING_REWARD = 3
 MINING_INTERVAL_HOURS = 24
-USER_DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'users.json')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+USER_DATA_FILE = os.path.join(BASE_DIR, '..', 'data', 'users.json')
 
-# التأكد من وجود مجلد data
-os.makedirs(os.path.join(os.path.dirname(__file__), '..', 'data'), exist_ok=True)
+# تأكد من وجود مجلد data
+os.makedirs(os.path.join(BASE_DIR, '..', 'data'), exist_ok=True)
 
 def load_users():
     if not os.path.exists(USER_DATA_FILE):
@@ -40,7 +41,11 @@ def check_mining_status():
 
     last_mined = user.get("last_mined")
     if last_mined:
-        last_time_dt = datetime.fromisoformat(last_mined)
+        try:
+            last_time_dt = datetime.fromisoformat(last_mined)
+        except Exception:
+            return jsonify({'error': 'Invalid timestamp format'}), 500
+
         now = datetime.utcnow()
         hours_passed = (now - last_time_dt).total_seconds() / 3600
 
@@ -74,7 +79,11 @@ def mine_coins():
 
     last_mined = user.get("last_mined")
     if last_mined:
-        last_time_dt = datetime.fromisoformat(last_mined)
+        try:
+            last_time_dt = datetime.fromisoformat(last_mined)
+        except Exception:
+            return jsonify({'error': 'Invalid timestamp format'}), 500
+
         now = datetime.utcnow()
         hours_passed = (now - last_time_dt).total_seconds() / 3600
         if hours_passed < MINING_INTERVAL_HOURS:
