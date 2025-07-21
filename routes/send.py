@@ -16,7 +16,11 @@ def send_coins():
     email = data.get("email")
     sender = data.get("sender")
     recipient = data.get("recipient")
-    amount = data.get("amount")
+    
+    try:
+        amount = float(data.get("amount"))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Amount must be a number"}), 400
 
     if not email or not sender or not recipient or not amount:
         return jsonify({"error": "Missing required fields"}), 400
